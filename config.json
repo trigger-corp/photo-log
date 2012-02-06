@@ -1,0 +1,15 @@
+{
+	"name": "photolog",
+	"author": "Trigger",
+	"url" : "http://trigger.io",
+	"version": "0.1",
+	"platform_version": "default",
+	"description": "photolog",
+	"permissions": [ ],
+	"background_files": [ ],
+	"activations": [],
+	"browser_action": {},
+	"logging": {
+		"level": "DEBUG"
+	}
+}
