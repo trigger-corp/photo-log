@@ -6,6 +6,8 @@
 		<script src="underscore.js"></script>
 		<script src="backbone.js"></script>
 		<script src="//connect.facebook.net/en_US/all.js"></script>
+		<script src="date.js"></script>
+
 		<script>
 			var config = {
 				fbAppId: '265837806823447',
@@ -186,7 +188,7 @@
 										photolog.photos.add([{
 											id: file.objectId,
 											url: data.url,
-											timestamp: new Date(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
+											timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
 											user: state.parseUserId
 										}]);
 									}
@@ -211,7 +213,7 @@
 									photolog.photos.add([{
 										id: file.objectId,
 										url: file.file.url,
-										timestamp: new Date(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
+										timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
 										user: file.user.objectId
 									}]);
 								}
