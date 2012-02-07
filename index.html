@@ -238,6 +238,9 @@
 						},
 						type: "GET",
 						dataType: 'json',
+						data: {
+							"limit": 10
+						},
 						success: function (data) {
 							data.results.forEach(function (file) {
 								if (!photolog.photos.get(file.objectId)) {
