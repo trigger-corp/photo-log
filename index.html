@@ -29,6 +29,18 @@
 				collections: {}
 			};
 			
+			var loadCount = 0;
+			var loading = function () {
+				loadCount++;
+				$('#loading').show();
+			}
+			var loaded = function () {
+				loadCount--;
+				if (loadCount < 1) {
+					$('#loading').hide();
+				}
+			}
+			
 			photolog.types.Router = Backbone.Router.extend({
 				/*routes: {
 					"": "home",
@@ -39,6 +51,9 @@
 				home: function() {
 				},
 				login: function () {
+					if (state.loggedIn) {
+						return;
+					}
 					var parseLogin = function () {
 						forge.request.ajax({
 							url: "https://api.parse.com/1/login",
@@ -59,10 +74,12 @@
 									state.parseUserId = data.objectId;
 									state.loggedIn = true;
 									photolog.router.update();
-									$('#login').hide();
+									$('#login').text("Logged in.");
+									$('#login').removeClass('button').addClass('text');
 								} else {
 									alert("Parse login error");
 								}
+								loaded();
 							}, error: function (e) {
 								// Try to register
 								forge.request.ajax({
@@ -84,12 +101,15 @@
 											state.parseUserId = data.objectId;
 											state.loggedIn = true;
 											photolog.router.update();
-											$('#login').hide();
+											$('#login').text("Logged in.");
+											$('#login').removeClass('button').addClass('text');
 										} else {
 											alert("Parse registration error");
 										}
+										loaded();
 									}, error: function (e) {
 										alert("Parse registration error");
+										loaded();
 									}
 								});
 							}
@@ -101,7 +121,6 @@
 							url: 'https://www.facebook.com/dialog/oauth?client_id='+config.fbAppId+'&redirect_uri=fb'+config.fbAppId+'://authorize&display=touch&response_type=token',
 							pattern: 'fb'+config.fbAppId+'://authorize/*'
 						}, function (data) {
-							$('#login').text("Logging in...");
 							// we are now at a URL matching the pattern given above, i.e. fb319333711443283://authorize/...
 							// now we can pull out the Facebook authentication data from the URL query string
 							var params = {}, queryString = data.url.substring(data.url.indexOf('#')+1),
@@ -110,6 +129,7 @@
 								params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
 							}
 
+							loading();
 							// all authenticated - grab data for the current user
 							forge.request.ajax({
 								url: 'https://graph.facebook.com/me?access_token='+params['access_token'],
@@ -122,7 +142,10 @@
 										parseLogin();
 									} else {
 										alert("Facebook login error");
+										loaded();
 									}
+								}, error: function () {
+									loaded();
 								}
 							});
 						});
@@ -133,6 +156,7 @@
 								parseLogin();
 							} else {
 								alert('User cancelled login or did not fully authorize.');
+								loaded();
 							}
 						});
 					}
@@ -143,10 +167,11 @@
 						return;
 					}
 					if (!state.loggedIn) {
-						photolog.router.navigate('', true)
+						alert("Please login to upload photos");
 						return;
 					}
 					forge.file.getImage({width: 500, height: 500}, function (file) {
+						loading();
 						forge.request.ajax({
 							url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
 							headers: {
@@ -185,19 +210,25 @@
 										"ACL": acl
 									}),
 									success: function (file) {
+										loaded();
 										photolog.photos.add([{
 											id: file.objectId,
 											url: data.url,
 											timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
 											user: state.parseUserId
 										}]);
+									}, error: function () {
+										loaded();
 									}
 								});
+							}, error: function () {
+								loaded();
 							}
 						});
 					});
 				},
 				update: function () {
+					loading();
 					forge.request.ajax({
 						url: "https://api.parse.com/1/classes/Photo",
 						headers: {
@@ -218,6 +249,10 @@
 									}]);
 								}
 							})
+							loaded();
+						},
+						error: function () {
+							loaded();
 						}
 					});
 				}
@@ -240,6 +275,7 @@
 				});
 
 				var index = photolog.photos.indexOf(model);
+				loading();
 				if (index == 0) {
 					$('#header').after(photo.render().el);
 				} else {
@@ -273,6 +309,7 @@
 						var ratio = target/square;
 						$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></div>');
 						$(el).fadeIn('slow');
+						loaded();
 					}
 					preloadImage.src = this.model.get('url');
 					
@@ -306,6 +343,11 @@
 				font-family: "Helvetica", "Corbel", "Arial", sans-serif;
 				color: black;
 			}
+			#photos {
+				max-width: 580px;
+				margin: auto;
+				text-align: left;
+			}
 			div.photo {
 				overflow: hidden;
 				vertical-align: middle;
@@ -325,6 +367,11 @@
 				border-radius: 5px;
 				background-color: #888;
 			}
+			div.text {
+				font-size: 1.2em;
+				padding: 10px;
+				margin: 20px 10px;
+			}
 		</style>
 	</head>
 	<body>
@@ -336,6 +383,7 @@
 					<div style="font-size: 2em;">Photolog</div>
 					<div class="button" id="login" onclick="photolog.router.login();">Login</div>
 					<div class="button" onclick="photolog.router.upload();">Upload</div>
+					<div class="text" id="loading">Loading...</div>
 				</div>
 			</div>
 		</div>
