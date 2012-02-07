@@ -3,225 +3,317 @@
 	<head>
 		<title>Forge Web Test</title>
 		<script src="jquery.min.js"></script>
-	<script>
-		var config = {
-			fbAppId: '265837806823447',
-			parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
-			parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P'
-		};
-		var state = {
-			loggedIn: false,
-			parseSession: null,
-			parseUserId: null,
-			fbAccessToken: null,
-			fbId: null
-		};
-
-		if (!forge.is.mobile()) {
-			window.fbAsyncInit = function() {
-				FB.init({
-					appId      : config.fbAppId,
-					status     : true, 
-					cookie     : true,
-					xfbml      : false,
-					oauth      : true,
-				});
+		<script src="underscore.js"></script>
+		<script src="backbone.js"></script>
+		<script src="//connect.facebook.net/en_US/all.js"></script>
+		<script>
+			var config = {
+				fbAppId: '265837806823447',
+				parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
+				parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P'
 			};
-			(function(d){
-				var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
-				js = d.createElement('script'); js.id = id; js.async = true;
-				js.src = "//connect.facebook.net/en_US/all.js";
-				d.getElementsByTagName('head')[0].appendChild(js);
-			}(document));
-		}
-		
-		var upload = function () {
-			if (!forge.is.mobile()) {
-				alert("Please use the mobile app to upload photos");
-				return;
-			}
-			if (!state.loggedIn) {
-				alert("Please login first");
-				return;
-			}
-			forge.file.getImage(function (file) {
-				forge.request.ajax({
-					url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
-					headers: {
-						"X-Parse-Application-Id": config.parseAppId,
-						"X-Parse-REST-API-Key": config.parseRestKey
-					},
-					type: "POST",
-					files: [file],
-					fileUploadMethod: 'raw',
-					dataType: 'json',
-					success: function (data) {
-						document.getElementById('img').src = data.url;
-						
-						var acl = {
-							"*": {}
-						};
-						acl[state.parseUserId] = {"read": true, "write": true};
-						
+			var state = {
+				loggedIn: false,
+				parseSession: null,
+				parseUserId: null,
+				fbAccessToken: null,
+				fbId: null
+			};
+			
+			var photolog = {
+				types: {},
+				views: {},
+				models: {},
+				collections: {}
+			};
+			
+			photolog.types.Router = Backbone.Router.extend({
+				/*routes: {
+					"": "home",
+					"login": "login",
+					"upload": "upload",
+					"update": "update"
+				},*/
+				home: function() {
+				},
+				login: function () {
+					var parseLogin = function () {
 						forge.request.ajax({
-							url: "https://api.parse.com/1/classes/Photo",
+							url: "https://api.parse.com/1/login",
+							headers: {
+								"X-Parse-Application-Id": config.parseAppId,
+								"X-Parse-REST-API-Key": config.parseRestKey
+							},
+							type: "GET",
+							dataType: 'json',
+							data: {
+								username: state.fbId,
+								password: state.fbId
+							},
+							success: function (data) {
+								// Logged in
+								if (data.sessionToken) {
+									state.parseSession = data.sessionToken;
+									state.parseUserId = data.objectId;
+									state.loggedIn = true;
+									photolog.router.update();
+									$('#login').hide();
+								} else {
+									alert("Parse login error");
+								}
+							}, error: function (e) {
+								// Try to register
+								forge.request.ajax({
+									url: "https://api.parse.com/1/users",
+									headers: {
+										"X-Parse-Application-Id": config.parseAppId,
+										"X-Parse-REST-API-Key": config.parseRestKey
+									},
+									type: "POST",
+									contentType: "application/json",
+									dataType: 'json',
+									data: JSON.stringify({
+										username: state.fbId,
+										password: state.fbId
+									}),
+									success: function (data) {
+										if (data.sessionToken) {
+											state.parseSession = data.sessionToken;
+											state.parseUserId = data.objectId;
+											state.loggedIn = true;
+											photolog.router.update();
+											$('#login').hide();
+										} else {
+											alert("Parse registration error");
+										}
+									}, error: function (e) {
+										alert("Parse registration error");
+									}
+								});
+							}
+						});
+					}
+
+					if (forge.is.mobile()) {
+						forge.tabs.openWithOptions({
+							url: 'https://www.facebook.com/dialog/oauth?client_id='+config.fbAppId+'&redirect_uri=fb'+config.fbAppId+'://authorize&display=touch&response_type=token',
+							pattern: 'fb'+config.fbAppId+'://authorize/*'
+						}, function (data) {
+							$('#login').text("Logging in...");
+							// we are now at a URL matching the pattern given above, i.e. fb319333711443283://authorize/...
+							// now we can pull out the Facebook authentication data from the URL query string
+							var params = {}, queryString = data.url.substring(data.url.indexOf('#')+1),
+								regex = /([^&=]+)=([^&]*)/g, m;
+							while (m = regex.exec(queryString)) {
+								params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+							}
+
+							// all authenticated - grab data for the current user
+							forge.request.ajax({
+								url: 'https://graph.facebook.com/me?access_token='+params['access_token'],
+								dataType: 'json',
+								success: function (data) {
+									if (data.id) {
+										state.fbAccessToken = params['access_token'];
+										state.fbId = data.id;
+										// Parse login
+										parseLogin();
+									} else {
+										alert("Facebook login error");
+									}
+								}
+							});
+						});
+					} else {
+						FB.login(function(response) {
+							if (response.authResponse) {
+								state.fbId = response.authResponse.userID;
+								parseLogin();
+							} else {
+								alert('User cancelled login or did not fully authorize.');
+							}
+						});
+					}
+				},
+				upload: function () {
+					if (!forge.is.mobile()) {
+						alert("Please use the mobile app to upload photos");
+						return;
+					}
+					if (!state.loggedIn) {
+						photolog.router.navigate('', true)
+						return;
+					}
+					forge.file.getImage({width: 500, height: 500}, function (file) {
+						forge.request.ajax({
+							url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
 							headers: {
 								"X-Parse-Application-Id": config.parseAppId,
 								"X-Parse-REST-API-Key": config.parseRestKey
 							},
 							type: "POST",
-							contentType: "application/json",
+							files: [file],
+							fileUploadMethod: 'raw',
 							dataType: 'json',
-							data: JSON.stringify({
-								file: {
-									"__type": "File",
-									name: data.name
-								},
-								user: {
-									"__type": "Pointer",
-									className: "_User",
-									objectId: state.parseUserId
-								},
-								"ACL": acl
-							}),
 							success: function (data) {
+								var acl = {
+									"*": {read: true}
+								};
+								acl[state.parseUserId] = {"read": true, "write": true};
+								
+								forge.request.ajax({
+									url: "https://api.parse.com/1/classes/Photo",
+									headers: {
+										"X-Parse-Application-Id": config.parseAppId,
+										"X-Parse-REST-API-Key": config.parseRestKey
+									},
+									type: "POST",
+									contentType: "application/json",
+									dataType: 'json',
+									data: JSON.stringify({
+										file: {
+											"__type": "File",
+											name: data.name
+										},
+										user: {
+											"__type": "Pointer",
+											className: "_User",
+											objectId: state.parseUserId
+										},
+										"ACL": acl
+									}),
+									success: function (file) {
+										photolog.photos.add([{
+											id: file.objectId,
+											url: data.url,
+											timestamp: new Date(file.createdAt).getTime(),
+											user: state.parseUserId
+										}]);
+									}
+								});
 							}
 						});
-					}
-				});
-			});
-		}
-		var list = function () {
-			if (!state.loggedIn) {
-				alert("Please login first");
-				return;
-			}
-
-			forge.request.ajax({
-				url: "https://api.parse.com/1/classes/Photo",
-				headers: {
-					"X-Parse-Application-Id": config.parseAppId,
-					"X-Parse-REST-API-Key": config.parseRestKey,
-					"X-Parse-Session-Token": state.parseSession
+					});
 				},
-				type: "GET",
-				dataType: 'json',
-				success: function (data) {
-					$('#prev').html('');
-					data.results.forEach(function (file) {
-						forge.logging.log(file);
-						$('#prev').append('<img src="'+file.file.url+'" style="width: 200px"><br>');
-					})
-				}
-			});
-
-		}
-		
-		var parseLogin = function () {
-			forge.request.ajax({
-				url: "https://api.parse.com/1/login",
-				headers: {
-					"X-Parse-Application-Id": config.parseAppId,
-					"X-Parse-REST-API-Key": config.parseRestKey
-				},
-				type: "GET",
-				dataType: 'json',
-				data: {
-					username: state.fbId,
-					password: state.fbId
-				},
-				success: function (data) {
-					// Logged in
-					if (data.sessionToken) {
-						state.parseSession = data.sessionToken;
-						state.parseUserId = data.objectId;
-						state.loggedIn = true;
-						$('#login').hide();
-					} else {
-						alert("Parse login error");
-					}
-				}, error: function (e) {
-					// Try to register
+				update: function () {
 					forge.request.ajax({
-						url: "https://api.parse.com/1/users",
+						url: "https://api.parse.com/1/classes/Photo",
 						headers: {
 							"X-Parse-Application-Id": config.parseAppId,
-							"X-Parse-REST-API-Key": config.parseRestKey
+							"X-Parse-REST-API-Key": config.parseRestKey,
+							"X-Parse-Session-Token": state.parseSession || ""
 						},
-						type: "POST",
-						contentType: "application/json",
+						type: "GET",
 						dataType: 'json',
-						data: JSON.stringify({
-							username: state.fbId,
-							password: state.fbId
-						}),
 						success: function (data) {
-							if (data.sessionToken) {
-								state.parseSession = data.sessionToken;
-								state.parseUserId = data.objectId;
-								state.loggedIn = true;
-								$('#login').hide();
-							} else {
-								alert("Parse registration error");
-							}
-						}, error: function (e) {
-							alert("Parse registration error");
+							data.results.forEach(function (file) {
+								if (!photolog.photos.get(file.objectId)) {
+									photolog.photos.add([{
+										id: file.objectId,
+										url: file.file.url,
+										timestamp: new Date(file.createdAt).getTime(),
+										user: file.user.objectId
+									}]);
+								}
+							})
 						}
 					});
 				}
 			});
-		}
-		
-		var login = function () {
-			if (forge.is.mobile()) {
-				forge.tabs.openWithOptions({
-					url: 'https://www.facebook.com/dialog/oauth?client_id='+config.fbAppId+'&redirect_uri=fb'+config.fbAppId+'://authorize&display=touch&response_type=token',
-					pattern: 'fb'+config.fbAppId+'://authorize/*'
-				}, function (data) {
-					$('#login').text("Logging in...");
-					// we are now at a URL matching the pattern given above, i.e. fb319333711443283://authorize/...
-					// now we can pull out the Facebook authentication data from the URL query string
-					var params = {}, queryString = data.url.substring(data.url.indexOf('#')+1),
-						regex = /([^&=]+)=([^&]*)/g, m;
-					while (m = regex.exec(queryString)) {
-						params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-					}
+			photolog.router = new photolog.types.Router();
+			
+			photolog.models.Photo = Backbone.Model.extend({
+			});
+			
+			photolog.collections.Photos = Backbone.Collection.extend({
+				model: photolog.models.Photo,
+				comparator: function (model) {
+					return model.get('timestamp');
+				}
+			});
+			photolog.photos = new photolog.collections.Photos();
+			photolog.photos.on('add', function (model) {
+				var photo = new photolog.views.Photo({
+					model: model
+				});
+				// TODO: Place in correct order
+				$('#photos').prepend(photo.render().el);
+			});
+			
+			
 
-					// all authenticated - grab data for the current user
-					forge.request.ajax({
-						url: 'https://graph.facebook.com/me?access_token='+params['access_token'],
-						dataType: 'json',
-						success: function (data) {
-							if (data.id) {
-								state.fbAccessToken = params['access_token'];
-								state.fbId = data.id;
-								// Parse login
-								parseLogin();
-							} else {
-								alert("Facebook login error");
-							}
+			photolog.views.Photo = Backbone.View.extend({
+				tagName: "div",
+				className: "photo",
+
+				render: function() {
+					var el = this.el;
+					$(el).hide();
+					var preloadImage = new Image();
+					preloadImage.onload = function () {
+						var square, heightOffset, widthOffset;
+						if (preloadImage.height > preloadImage.width) {
+							square = preloadImage.width;
+							heightOffset = (preloadImage.height - square) / 2;
+							widthOffset = 0;
+						} else {
+							square = preloadImage.height;
+							widthOffset = (preloadImage.width - square) / 2;
+							heightOffset = 0;
 						}
-					});
-				});
-			} else {
-				FB.login(function(response) {
-					if (response.authResponse) {
-						state.fbId = response.authResponse.userID;
-						parseLogin();
-					} else {
-						alert('User cancelled login or did not fully authorize.');
+						var target = 220;
+						var ratio = target/square;
+						$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></div>');
+						$(el).fadeIn('slow');
 					}
-				});
-			}
-		}
+					preloadImage.src = this.model.get('url');
+					
+					return this;
+				}
+			});
+			
+			$(function () {
+				if (!forge.is.mobile()) {
+					FB.init({
+						appId      : config.fbAppId,
+						status     : true, 
+						cookie     : true,
+						xfbml      : false,
+						oauth      : true,
+					});
+				}
+				//Backbone.history.start()
+				photolog.router.home();
+				photolog.router.update();
+				setInterval(function () {
+					photolog.router.update();
+				}, 10000);
+			});
 
 		</script>
+		<style>
+			body {
+				text-align: center;
+				background-image: url('img/stripe.png');
+				color: white;
+			}
+			div.photo {
+				overflow: hidden;
+				vertical-align: middle;
+				text-align: center;
+				box-shadow: 2px 2px 8px 3px #aaa;
+				-webkit-box-shadow: 2px 2px 8px 3px #aaa;
+				padding: 15px 15px 30px;
+				display: inline-block;
+				background-color: #ccc;
+				margin: 20px;
+			}
+		</style>
 	</head>
 	<body>
-		<h1 id="login" onclick="login()">Login</h1>
-		<h1 onclick="upload()">Upload</h1>
-		<img id="img" style="width: 200px">
-		<h1 onclick="list()">Show previous uploads</h1>
-		<div id="prev"></div>
+		<div id="fb-root"></div>
+		<h1 id="login" onclick="photolog.router.login();">Login</h1>
+		<h1 onclick="photolog.router.upload();">Upload</h1>
+		<div id="photos"></div>
 	</body>
 </html>
