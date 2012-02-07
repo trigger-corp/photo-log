@@ -239,7 +239,8 @@
 						type: "GET",
 						dataType: 'json',
 						data: {
-							"limit": 10
+							"limit": 10,
+							"order": "-createdAt"
 						},
 						success: function (data) {
 							data.results.forEach(function (file) {
