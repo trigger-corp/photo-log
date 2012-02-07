@@ -186,7 +186,7 @@
 										photolog.photos.add([{
 											id: file.objectId,
 											url: data.url,
-											timestamp: new Date(file.createdAt).getTime(),
+											timestamp: new Date(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
 											user: state.parseUserId
 										}]);
 									}
@@ -211,7 +211,7 @@
 									photolog.photos.add([{
 										id: file.objectId,
 										url: file.file.url,
-										timestamp: new Date(file.createdAt).getTime(),
+										timestamp: new Date(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
 										user: file.user.objectId
 									}]);
 								}
@@ -228,7 +228,7 @@
 			photolog.collections.Photos = Backbone.Collection.extend({
 				model: photolog.models.Photo,
 				comparator: function (model) {
-					return model.get('timestamp');
+					return -model.get('timestamp');
 				}
 			});
 			photolog.photos = new photolog.collections.Photos();
@@ -236,8 +236,13 @@
 				var photo = new photolog.views.Photo({
 					model: model
 				});
-				// TODO: Place in correct order
-				$('#photos').prepend(photo.render().el);
+
+				var index = photolog.photos.indexOf(model);
+				if (index == 0) {
+					$('#header').after(photo.render().el);
+				} else {
+					$(photolog.photos.at(index-1).get('el')).after(photo.render().el);
+				}
 			});
 			
 			
@@ -248,6 +253,7 @@
 
 				render: function() {
 					var el = this.el;
+					this.model.set('el', el);
 					$(el).hide();
 					var preloadImage = new Image();
 					preloadImage.onload = function () {
@@ -295,7 +301,8 @@
 			body {
 				text-align: center;
 				background-image: url('img/stripe.png');
-				color: white;
+				font-family: "Helvetica", "Corbel", "Arial", sans-serif;
+				color: black;
 			}
 			div.photo {
 				overflow: hidden;
@@ -308,12 +315,27 @@
 				background-color: #ccc;
 				margin: 20px;
 			}
+			div.button {
+				font-size: 1.2em;
+				padding: 10px;
+				margin: 20px 10px;
+				border: 1px solid #444;
+				border-radius: 5px;
+				background-color: #888;
+			}
 		</style>
 	</head>
 	<body>
 		<div id="fb-root"></div>
-		<h1 id="login" onclick="photolog.router.login();">Login</h1>
-		<h1 onclick="photolog.router.upload();">Upload</h1>
-		<div id="photos"></div>
+
+		<div id="photos">
+			<div id="header" class="photo">
+				<div style="width: 220px; height: 220px;">
+					<div style="font-size: 2em;">Photolog</div>
+					<div class="button" id="login" onclick="photolog.router.login();">Login</div>
+					<div class="button" onclick="photolog.router.upload();">Upload</div>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>
