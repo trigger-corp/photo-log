@@ -37,11 +37,32 @@ var loaded = function () {
 // Router
 photolog.types.Router = Backbone.Router.extend({
 	routes: {
-		"": "home"
+		"": "home",
+		"upsell": "upsell",
+		"upload": "upload"
 		// TODO: Individual photo page
 	},
-	home: function() {
-		// TODO: Home page view rather than hardcoded
+	home: function () {
+		// TODO: Use views rather than hardcoded
+		$('#photos').show();
+		$('#upload').remove();
+		$('#upsell').hide();
+	},
+	upsell: function () {
+		// TODO: Detect iPhone/Android/Web and use appropriate message
+		if (forge.is.web()) {
+			$('#photos').hide();
+			$('#upload').remove();
+			$('#upsell').show();
+		} else {
+			photolog.router.navigate('', true);
+		}
+	},
+	upload: function () {
+		$('#upsell').hide();
+		$('#photos').hide();
+		var page = new photolog.views.Upload();
+		page.render().show();
 	}
 });
 photolog.router = new photolog.types.Router();
@@ -161,69 +182,14 @@ photolog.util = {
 	},
 	upload: function () {
 		if (!forge.is.mobile()) {
-			alert("Please use the mobile app to upload photos");
+			photolog.router.navigate('upsell', true);
 			return;
 		}
 		if (!state.loggedIn) {
 			alert("Please login to upload photos");
 			return;
 		}
-		forge.file.getImage({width: 500, height: 500}, function (file) {
-			loading();
-			forge.request.ajax({
-				url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
-				headers: {
-					"X-Parse-Application-Id": config.parseAppId,
-					"X-Parse-REST-API-Key": config.parseRestKey
-				},
-				type: "POST",
-				files: [file],
-				fileUploadMethod: 'raw',
-				dataType: 'json',
-				success: function (data) {
-					var acl = {
-						"*": {read: true}
-					};
-					acl[state.parseUserId] = {"read": true, "write": true};
-					
-					forge.request.ajax({
-						url: "https://api.parse.com/1/classes/Photo",
-						headers: {
-							"X-Parse-Application-Id": config.parseAppId,
-							"X-Parse-REST-API-Key": config.parseRestKey
-						},
-						type: "POST",
-						contentType: "application/json",
-						dataType: 'json',
-						data: JSON.stringify({
-							file: {
-								"__type": "File",
-								name: data.name
-							},
-							user: {
-								"__type": "Pointer",
-								className: "_User",
-								objectId: state.parseUserId
-							},
-							"ACL": acl
-						}),
-						success: function (file) {
-							loaded();
-							photolog.photos.add([{
-								id: file.objectId,
-								url: data.url,
-								timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
-								user: state.parseUserId
-							}]);
-						}, error: function () {
-							loaded();
-						}
-					});
-				}, error: function () {
-					loaded();
-				}
-			});
-		});
+		photolog.router.navigate('upload', true);
 	},
 	update: function () {
 		loading();
@@ -287,6 +253,103 @@ photolog.photos.on('add', function (model) {
 });
 
 // Views
+photolog.views.Upload = Backbone.View.extend({
+	tagName: "div",
+	id: "upload",
+	events: {
+		"click #uploadcancel": "cancel",
+		"click #choosephoto": "choose",
+		"click #uploadphoto": "upload"
+	},
+	render: function() {
+		var el = this.el;
+		$(el).html('<table><tr><td><div class="photo"><div style="width: 220px;"><div class="button" id="choosephoto">Choose photo</div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div></div></td></tr></table>');
+		return this;
+	},
+	show: function () {
+		$('body').append(this.el);
+	},
+	cancel: function () {
+		photolog.router.navigate('', true);
+	},
+	upload: function () {
+		if (!this.selImage) {
+			alert("Please choose a photo to upload first!");
+		} else {
+			photolog.router.navigate('', true);
+			loading();
+			forge.request.ajax({
+				url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
+				headers: {
+					"X-Parse-Application-Id": config.parseAppId,
+					"X-Parse-REST-API-Key": config.parseRestKey
+				},
+				type: "POST",
+				files: [this.selImage],
+				fileUploadMethod: 'raw',
+				dataType: 'json',
+				success: function (data) {
+					var acl = {
+						"*": {read: true}
+					};
+					acl[state.parseUserId] = {"read": true, "write": true};
+					
+					forge.request.ajax({
+						url: "https://api.parse.com/1/classes/Photo",
+						headers: {
+							"X-Parse-Application-Id": config.parseAppId,
+							"X-Parse-REST-API-Key": config.parseRestKey
+						},
+						type: "POST",
+						contentType: "application/json",
+						dataType: 'json',
+						data: JSON.stringify({
+							file: {
+								"__type": "File",
+								name: data.name
+							},
+							user: {
+								"__type": "Pointer",
+								className: "_User",
+								objectId: state.parseUserId
+							},
+							"ACL": acl
+						}),
+						success: function (file) {
+							loaded();
+							photolog.photos.add([{
+								id: file.objectId,
+								url: data.url,
+								timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
+								user: state.parseUserId
+							}]);
+						}, error: function () {
+							loaded();
+						}
+					});
+				}, error: function () {
+					loaded();
+				}
+			});
+		}
+	},
+	choose: function () {
+		var self = this;
+		self.selImage = undefined;
+		$('.toUpload').remove();
+		forge.file.getImage({width: 500, height: 500}, function (file) {
+			forge.file.imageURL(file, function (url) {
+				var photo = new photolog.views.Photo({
+					model: new photolog.models.Photo({url: url})
+				});
+				$('.photo', self.el).after(photo.render().el);
+				$(photo.el).addClass("toUpload");
+			});
+			self.selImage = file;
+		});
+	}
+});
+
 photolog.views.Photo = Backbone.View.extend({
 	tagName: "div",
 	className: "photo",
@@ -331,7 +394,15 @@ $(function () {
 		});
 	}
 	Backbone.history.start()
-
+	if (forge.is.web()) {
+		if (navigator.userAgent.indexOf('Android') != -1) {
+			$('#appstore').hide();
+			photolog.router.navigate('upsell', true);
+		} else if (navigator.userAgent.indexOf('iPhone') != -1 || navigator.userAgent.indexOf('iPad') != -1) {
+			$('#androidmarket').hide();
+			photolog.router.navigate('upsell', true);
+		}
+	}
 	// Check for photos then poll every 10 seconds, bit hacky.
 	photolog.util.update();
 	setInterval(function () {

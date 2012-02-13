@@ -9,6 +9,7 @@
 		<script src="lib/date.js"></script>
 		<script src="photolog.js"></script>
 		<link rel="stylesheet" href="style.css">
+		<meta name="viewport" content="width=device-width, height=device-height, maximum-scale=1, minimum-scale=1, user-scalable=no">
 	</head>
 	<body>
 		<div id="fb-root"></div>
@@ -22,6 +23,22 @@
 					<div class="text" id="loading">Loading...</div>
 				</div>
 			</div>
+		</div>
+		<div id="upsell">
+			<table>
+				<tr>
+					<td>
+						<div class="photo">
+							<div style="width: 220px; height: 220px;">
+								Download the mobile app to upload your own pictures.
+								<div id="androidmarket" class="button">Android Market</div>
+								<div id="appstore" class="button">App Store</div>
+								<div class="button" onclick="photolog.router.navigate('', true);">No thanks</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
 		</div>
 	</body>
 </html>
