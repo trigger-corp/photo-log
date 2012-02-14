@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Forge Web Test</title>
+		<title>PhotoShare</title>
+		<script src="//connect.facebook.net/en_US/all.js"></script>
 		<script src="lib/jquery.min.js"></script>
 		<script src="lib/underscore.js"></script>
 		<script src="lib/backbone.js"></script>
-		<script src="//connect.facebook.net/en_US/all.js"></script>
 		<script src="lib/date.js"></script>
 		<script src="photolog.js"></script>
 		<link rel="stylesheet" href="style.css">
@@ -13,7 +13,11 @@
 	</head>
 	<body>
 		<div id="fb-root"></div>
-
+		<div id="page-header">
+			<div id="page-title">
+				#launchconference
+			</div>
+		</div>
 		<div id="photos">
 			<div id="header" class="photo">
 				<div style="width: 220px; height: 220px;">
@@ -39,6 +43,9 @@
 					</td>
 				</tr>
 			</table>
+		</div>
+		<div class="photo" id="large-photo-container">
+			<img id="large-photo" src=""/>
 		</div>
 	</body>
 </html>
