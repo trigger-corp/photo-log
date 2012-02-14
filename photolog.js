@@ -39,7 +39,8 @@ photolog.types.Router = Backbone.Router.extend({
 	routes: {
 		"": "home",
 		"upsell": "upsell",
-		"upload": "upload"
+		"upload": "upload",
+		"photo/:photoId": "photo"
 		// TODO: Individual photo page
 	},
 	home: function () {
@@ -47,9 +48,11 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
+		$('#large-photo-container').hide();
 	},
 	upsell: function () {
 		// TODO: Detect iPhone/Android/Web and use appropriate message
+		$('#large-photo-container').hide();
 		if (forge.is.web()) {
 			$('#photos').hide();
 			$('#upload').remove();
@@ -61,8 +64,17 @@ photolog.types.Router = Backbone.Router.extend({
 	upload: function () {
 		$('#upsell').hide();
 		$('#photos').hide();
+		$('#large-photo-container').hide();
 		var page = new photolog.views.Upload();
 		page.render().show();
+	},
+	photo: function (photoId) {
+		// TODO: Use views rather than hardcoded
+		$('#photos').hide();
+		$('#upload').remove();
+		$('#upsell').hide();
+		$('#large-photo-container').hide();
+		photolog.util.getphoto(photoId);
 	}
 });
 photolog.router = new photolog.types.Router();
@@ -223,6 +235,25 @@ photolog.util = {
 				loaded();
 			}
 		});
+	},
+	getphoto: function(photoId) {
+		forge.request.ajax({
+			url: "https://api.parse.com/1/classes/Photo/" + photoId,
+			headers: {
+				"X-Parse-Application-Id": config.parseAppId,
+				"X-Parse-REST-API-Key": config.parseRestKey,
+				"X-Parse-Session-Token": state.parseSession || ""
+			},
+			type: "GET",
+			dataType: 'json',
+			success: function (image) {
+				$('#large-photo').attr('src', image.file.url);
+				$('#large-photo-container').show();
+			},
+			error: function () {
+				alert('Could not load photo');
+			}
+		});		
 	}
 }
 
@@ -359,6 +390,7 @@ photolog.views.Photo = Backbone.View.extend({
 		this.model.set('el', el);
 		$(el).hide();
 		var preloadImage = new Image();
+		var photoId = this.model.get('id');
 		preloadImage.onload = function () {
 			var square, heightOffset, widthOffset;
 			if (preloadImage.height > preloadImage.width) {
@@ -372,12 +404,12 @@ photolog.views.Photo = Backbone.View.extend({
 			}
 			var target = 220;
 			var ratio = target/square;
-			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></div>');
+			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
 			$(el).fadeIn('slow');
 			loaded();
 		}
 		preloadImage.src = this.model.get('url');
-		
+
 		return this;
 	}
 });

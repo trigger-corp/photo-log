@@ -5,26 +5,41 @@ body, html {
 }
 body {
 	text-align: center;
-	background-image: url('img/stripe.png');
+    background: #F7F5F5 url(img/paper.jpg) repeat;
 	font-family: "Helvetica", "Corbel", "Arial", sans-serif;
 	color: black;
 }
-#photos {
-	max-width: 580px;
+#page-header {
+	clear: both;
+	color: #111;
+	height: 50px;
+	line-height: 50px;
+	font-size: 18pt;
+	margin-bottom: -8px;
+	width: 100%;
+}
+#page-header-inner {
+	padding-left: 20px;
+}
+#photos, #stream-name {
 	margin: auto;
-	text-align: left;
+}
+#page-title {
+	color: #666;
 }
 div.photo {
 	overflow: hidden;
 	vertical-align: middle;
 	text-align: center;
-	box-shadow: 2px 2px 8px 3px #aaa;
-	-webkit-box-shadow: 2px 2px 8px 3px #aaa;
-	padding: 15px 15px 30px;
+	box-shadow: 0 1px 3px rgba(34,25,25,0.4);
+	-moz-box-shadow: 0 1px 2px rgba(34,25,25,0.4);
+	-webkit-box-shadow: 0 1px 3px rgba(34,25,25,0.4);
+	padding: 15px 15px 12px 15px;
 	display: inline-block;
-	background-color: #ccc;
-	margin: 20px;
+	background-color: #fff;
+	margin: 10px;
 }
+
 div.button {
 	font-size: 1.2em;
 	padding: 10px;
