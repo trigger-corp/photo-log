@@ -39,7 +39,6 @@ div.photo {
 	background-color: #fff;
 	margin: 10px;
 }
-
 div.button {
 	font-size: 1.2em;
 	padding: 10px;
@@ -61,6 +60,9 @@ div.text {
 #upload {
 	height: 100%;
 	width: 100%;
+}
+#large-photo {
+	max-width: 95%;
 }
 table, tr, td {
 	height: 100%;
