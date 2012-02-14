@@ -1,16 +1,7 @@
 // Constants used for configuration
 var config = {
-	fbAppId: '265837806823447',
 	parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
 	parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P'
-};
-// Variables holding current app state
-var state = {
-	loggedIn: false,
-	parseSession: null,
-	parseUserId: null,
-	fbAccessToken: null,
-	fbId: null
 };
 
 // Organisation object
@@ -81,124 +72,9 @@ photolog.router = new photolog.types.Router();
 
 // Functions
 photolog.util = {
-	login: function () {
-		if (state.loggedIn) {
-			return;
-		}
-		var parseLogin = function () {
-			forge.request.ajax({
-				url: "https://api.parse.com/1/login",
-				headers: {
-					"X-Parse-Application-Id": config.parseAppId,
-					"X-Parse-REST-API-Key": config.parseRestKey
-				},
-				type: "GET",
-				dataType: 'json',
-				data: {
-					username: state.fbId,
-					password: state.fbId
-				},
-				success: function (data) {
-					// Logged in
-					if (data.sessionToken) {
-						state.parseSession = data.sessionToken;
-						state.parseUserId = data.objectId;
-						state.loggedIn = true;
-						photolog.util.update();
-						$('#login').text("Logged in.");
-						$('#login').removeClass('button').addClass('text');
-					} else {
-						alert("Parse login error");
-					}
-					loaded();
-				}, error: function (e) {
-					// Try to register
-					forge.request.ajax({
-						url: "https://api.parse.com/1/users",
-						headers: {
-							"X-Parse-Application-Id": config.parseAppId,
-							"X-Parse-REST-API-Key": config.parseRestKey
-						},
-						type: "POST",
-						contentType: "application/json",
-						dataType: 'json',
-						data: JSON.stringify({
-							username: state.fbId,
-							password: state.fbId
-						}),
-						success: function (data) {
-							if (data.sessionToken) {
-								state.parseSession = data.sessionToken;
-								state.parseUserId = data.objectId;
-								state.loggedIn = true;
-								photolog.util.update();
-								$('#login').text("Logged in.");
-								$('#login').removeClass('button').addClass('text');
-							} else {
-								alert("Parse registration error");
-							}
-							loaded();
-						}, error: function (e) {
-							alert("Parse registration error");
-							loaded();
-						}
-					});
-				}
-			});
-		}
-
-		if (forge.is.mobile()) {
-			forge.tabs.openWithOptions({
-				url: 'https://www.facebook.com/dialog/oauth?client_id='+config.fbAppId+'&redirect_uri=fb'+config.fbAppId+'://authorize&display=touch&response_type=token',
-				pattern: 'fb'+config.fbAppId+'://authorize/*'
-			}, function (data) {
-				// we are now at a URL matching the pattern given above, i.e. fb319333711443283://authorize/...
-				// now we can pull out the Facebook authentication data from the URL query string
-				var params = {}, queryString = data.url.substring(data.url.indexOf('#')+1),
-					regex = /([^&=]+)=([^&]*)/g, m;
-				while (m = regex.exec(queryString)) {
-					params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-				}
-
-				loading();
-				// all authenticated - grab data for the current user
-				forge.request.ajax({
-					url: 'https://graph.facebook.com/me?access_token='+params['access_token'],
-					dataType: 'json',
-					success: function (data) {
-						if (data.id) {
-							state.fbAccessToken = params['access_token'];
-							state.fbId = data.id;
-							// Parse login
-							parseLogin();
-						} else {
-							alert("Facebook login error");
-							loaded();
-						}
-					}, error: function () {
-						loaded();
-					}
-				});
-			});
-		} else {
-			FB.login(function(response) {
-				if (response.authResponse) {
-					state.fbId = response.authResponse.userID;
-					parseLogin();
-				} else {
-					alert('User cancelled login or did not fully authorize.');
-					loaded();
-				}
-			});
-		}
-	},
 	upload: function () {
 		if (!forge.is.mobile()) {
 			photolog.router.navigate('upsell', true);
-			return;
-		}
-		if (!state.loggedIn) {
-			alert("Please login to upload photos");
 			return;
 		}
 		photolog.router.navigate('upload', true);
@@ -209,8 +85,7 @@ photolog.util = {
 			url: "https://api.parse.com/1/classes/Photo",
 			headers: {
 				"X-Parse-Application-Id": config.parseAppId,
-				"X-Parse-REST-API-Key": config.parseRestKey,
-				"X-Parse-Session-Token": state.parseSession || ""
+				"X-Parse-REST-API-Key": config.parseRestKey
 			},
 			type: "GET",
 			dataType: 'json',
@@ -224,8 +99,7 @@ photolog.util = {
 						photolog.photos.add([{
 							id: file.objectId,
 							url: file.file.url,
-							timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
-							user: file.user.objectId
+							timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime()
 						}]);
 					}
 				})
@@ -241,8 +115,7 @@ photolog.util = {
 			url: "https://api.parse.com/1/classes/Photo/" + photoId,
 			headers: {
 				"X-Parse-Application-Id": config.parseAppId,
-				"X-Parse-REST-API-Key": config.parseRestKey,
-				"X-Parse-Session-Token": state.parseSession || ""
+				"X-Parse-REST-API-Key": config.parseRestKey
 			},
 			type: "GET",
 			dataType: 'json',
@@ -320,11 +193,6 @@ photolog.views.Upload = Backbone.View.extend({
 				fileUploadMethod: 'raw',
 				dataType: 'json',
 				success: function (data) {
-					var acl = {
-						"*": {read: true}
-					};
-					acl[state.parseUserId] = {"read": true, "write": true};
-					
 					forge.request.ajax({
 						url: "https://api.parse.com/1/classes/Photo",
 						headers: {
@@ -338,21 +206,14 @@ photolog.views.Upload = Backbone.View.extend({
 							file: {
 								"__type": "File",
 								name: data.name
-							},
-							user: {
-								"__type": "Pointer",
-								className: "_User",
-								objectId: state.parseUserId
-							},
-							"ACL": acl
+							}
 						}),
 						success: function (file) {
 							loaded();
 							photolog.photos.add([{
 								id: file.objectId,
 								url: data.url,
-								timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime(),
-								user: state.parseUserId
+								timestamp: Date.parse(file.createdAt.replace('T', ' ').replace('Z','').substring(0, file.createdAt.indexOf('.'))).getTime()
 							}]);
 						}, error: function () {
 							loaded();
@@ -416,15 +277,6 @@ photolog.views.Photo = Backbone.View.extend({
 
 // Initialise app
 $(function () {
-	if (!forge.is.mobile()) {
-		FB.init({
-			appId      : config.fbAppId,
-			status     : true, 
-			cookie     : true,
-			xfbml      : false,
-			oauth      : true,
-		});
-	}
 	Backbone.history.start()
 	if (forge.is.web()) {
 		if (navigator.userAgent.indexOf('Android') != -1) {
