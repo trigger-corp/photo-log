@@ -210,6 +210,10 @@ photolog.views.Upload = Backbone.View.extend({
 						}),
 						success: function (file) {
 							loaded();
+
+							// Tweet
+							forge.tabs.open("https://twitter.com/share?url=" + encodeURIComponent("http://photo-log.trigger.io/#photo/"+file.objectId) + "&text=" + encodeURIComponent("Just posted to Trigger Photolog - "));
+
 							photolog.photos.add([{
 								id: file.objectId,
 								url: data.url,
