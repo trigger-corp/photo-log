@@ -25,6 +25,18 @@ var loaded = function () {
 	}
 }
 
+// TODO: forge.geolocation should work everywhere, iOS only for now
+var curLoc;
+if (forge.is.ios()) {
+	forge.geolocation.getCurrentPosition(function (loc) {
+		curLoc = loc.coords
+	});
+} else if (navigator.geolocation) {
+	navigator.geolocation.getCurrentPosition(function (loc) {
+		curLoc = loc.coords
+	});
+}
+
 // Router
 photolog.types.Router = Backbone.Router.extend({
 	routes: {
@@ -206,7 +218,8 @@ photolog.views.Upload = Backbone.View.extend({
 							file: {
 								"__type": "File",
 								name: data.name
-							}
+							},
+							location: curLoc
 						}),
 						success: function (file) {
 							loaded();
