@@ -21,7 +21,9 @@
 			<div id="header" class="photo">
 				<div style="width: 220px; height: 220px;">
 					<div style="font-size: 2em;">Photolog</div>
-					<div class="button" onclick="photolog.util.upload();">Upload</div>
+					<div class="button" id="upload-button" onclick="photolog.util.upload();">Upload</div>
+					<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
+					<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
 					<div class="text" id="loading">Loading...</div>
 				</div>
 			</div>
@@ -44,6 +46,8 @@
 		</div>
 		<div class="photo" id="large-photo-container">
 			<img id="large-photo" src=""/>
+			<br/>
+			<a href="/">More photos from #launch stream</a>
 		</div>
 	</body>
 </html>
