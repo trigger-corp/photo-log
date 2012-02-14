@@ -1,8 +1,15 @@
 // Constants used for configuration
 var config = {
 	parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
-	parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P'
+	parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P',
+	defaultStream: 'launch'
 };
+
+// Current state
+var state = {
+	location: null,
+	stream: null
+}
 
 // Organisation object
 var photolog = {
@@ -26,28 +33,40 @@ var loaded = function () {
 }
 
 // TODO: forge.geolocation should work everywhere, iOS only for now
-var curLoc;
 if (forge.is.ios()) {
 	forge.geolocation.getCurrentPosition(function (loc) {
-		curLoc = loc.coords
+		state.location = loc.coords
 	});
-} else if (navigator.geolocation) {
+} else if (forge.is.mobile() && navigator.geolocation) {
 	navigator.geolocation.getCurrentPosition(function (loc) {
-		curLoc = loc.coords
+		state.location = loc.coords
 	});
 }
 
 // Router
 photolog.types.Router = Backbone.Router.extend({
 	routes: {
-		"": "home",
+		"": "stream",
 		"upsell": "upsell",
 		"upload": "upload",
-		"photo/:photoId": "photo"
-		// TODO: Individual photo page
+		"photo/:photoId": "photo",
+		"stream/:stream": "stream"
 	},
-	home: function () {
+	stream: function (stream) {
 		// TODO: Use views rather than hardcoded
+		if (!stream) {
+			stream = config.defaultStream;
+		}
+		if (state.stream != stream) {
+			state.stream = stream;
+			$('#page-title').text('#'+stream);
+			
+			// Remove current photos
+			photolog.photos.reset();
+			$('.loadedPhoto').remove();
+			
+			photolog.util.update();
+		}
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
@@ -61,7 +80,7 @@ photolog.types.Router = Backbone.Router.extend({
 			$('#upload').remove();
 			$('#upsell').show();
 		} else {
-			photolog.router.navigate('', true);
+			photolog.router.navigate('stream/'+state.stream, true);
 		}
 	},
 	upload: function () {
@@ -102,6 +121,7 @@ photolog.util = {
 			type: "GET",
 			dataType: 'json',
 			data: {
+				"where": '{"stream": "'+state.stream+'"}',
 				"limit": 10,
 				"order": "-createdAt"
 			},
@@ -179,20 +199,21 @@ photolog.views.Upload = Backbone.View.extend({
 	},
 	render: function() {
 		var el = this.el;
-		$(el).html('<table><tr><td><div class="photo"><div style="width: 220px;"><div class="button" id="choosephoto">Choose photo</div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div></div></td></tr></table>');
+		$(el).html('<table><tr><td><div class="photo"><div style="width: 220px;"><div class="button" id="choosephoto">Choose photo</div><div>Post to stream:<input type="text" id="streamid" value="#'+state.stream+'"></div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div></div></td></tr></table>');
 		return this;
 	},
 	show: function () {
 		$('body').append(this.el);
 	},
 	cancel: function () {
-		photolog.router.navigate('', true);
+		photolog.router.navigate('stream/'+state.stream, true);
 	},
 	upload: function () {
 		if (!this.selImage) {
 			alert("Please choose a photo to upload first!");
 		} else {
-			photolog.router.navigate('', true);
+			var stream = $('#streamid').val().replace(/#/g, '') || state.stream || config.defaultStream;
+			photolog.router.navigate('stream/'+stream, true);
 			loading();
 			forge.request.ajax({
 				url: "https://api.parse.com/1/files/"+(new Date()).getTime()+".jpg",
@@ -219,7 +240,8 @@ photolog.views.Upload = Backbone.View.extend({
 								"__type": "File",
 								name: data.name
 							},
-							location: curLoc
+							location: state.location,
+							stream: stream
 						}),
 						success: function (file) {
 							loaded();
@@ -284,6 +306,7 @@ photolog.views.Photo = Backbone.View.extend({
 			var ratio = target/square;
 			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
 			$(el).fadeIn('slow');
+			$(el).addClass("loadedPhoto");
 			loaded();
 		}
 		preloadImage.src = this.model.get('url');
@@ -305,7 +328,6 @@ $(function () {
 		}
 	}
 	// Check for photos then poll every 10 seconds, bit hacky.
-	photolog.util.update();
 	setInterval(function () {
 		photolog.util.update();
 	}, 10000);
