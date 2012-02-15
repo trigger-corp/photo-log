@@ -7,9 +7,10 @@ var config = {
 
 // Current state
 var state = {
+	animating: false,
+	index: 0,
 	location: null,
-	stream: null,
-	index: 0
+	stream: null
 }
 
 // Organisation object
@@ -164,6 +165,10 @@ photolog.util = {
 		$('#scrollbox').show();
 	},
 	showIndividualPhoto: function(increment) {
+		if (state.animating) {
+			return;
+		}
+		state.animating = true;
 	    var nextPhoto = '';
 	    // A null state.index means show the 'Upsell' box instead of a photo
 		if (state.index == null) {
@@ -184,8 +189,9 @@ photolog.util = {
 		    opacity: 0,
 		    left: '+=' + increment * xShift
 			}, {
-			duration: 250,
+			duration: 200,
 			complete: function() {
+				$('#scrollbox').css('left', -1 * increment * xShift);
 				if(!nextPhoto) {
 			    	$('#start-stream-header').show();
 			    	$('#large-photo').hide();
@@ -194,13 +200,13 @@ photolog.util = {
 			    	$('#large-photo').show();
 				}
 				$('#large-photo').attr('src', nextPhoto);
-				$('#scrollbox').css('left', -1 * increment * xShift);
 				$('#scrollbox').animate({
 				    opacity: 1,
 				    left: '+=' + increment * xShift
-					}, {
-					duration: 250
-					});}});
+				}, {
+					duration: 200
+				});
+				state.animating = false;}});
 	}
 }
 
