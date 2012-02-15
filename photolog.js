@@ -72,7 +72,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
-		$('#scrollox').hide();
+		$('#scrollbox').hide();
 	},
 	upsell: function () {
 		// TODO: Detect iPhone/Android/Web and use appropriate message
@@ -97,7 +97,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#photos').hide();
 		$('#upload').remove();
 		$('#upsell').hide();
-		$('#scrollbox').show();
+		$('#scrollbox').hide();
 		if (state.stream != stream) {
 			state.stream = stream;
 			$('#page-title').text('#'+stream);

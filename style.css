@@ -55,12 +55,13 @@ div.button {
 	background-color: #888;
 }
 img.mobile-logo {
-	margin-top: 8px;
+	margin-top: 5px;
 }
 div.text {
-	font-size: 1.2em;
-	padding: 5px;
-	margin: 5px 10px;
+	margin-bottom: 3px;
+}
+div.loading {
+	margin-top: 3px;
 }
 #upsell {
 	display: none;

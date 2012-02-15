@@ -13,16 +13,16 @@
 	<body>
 		<div id="fb-root"></div>
 		<div id="page-header">
-			<a id="page-title" href="/">#launchstream</a>
+			photolog <a id="page-title" href="/">#launchstream</a>
 		</div>
 		<div id="photos">
 			<div id="header" class="photo">
 				<div style="width: 220px; height: 220px;">
-					<div style="font-size: 2em;">Photolog</div>
 					<div class="button" id="upload-button" onclick="photolog.util.upload();">Upload</div>
+					<div class="text">Download our mobile app to upload photos</div>
 					<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
 					<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
-					<div class="text" id="loading">Loading...</div>
+					<div class="loading" id="loading">Loading...</div>
 				</div>
 			</div>
 		</div>
@@ -32,7 +32,7 @@
 					<td>
 						<div class="photo">
 							<div style="width: 220px; height: 220px;">
-								Download the mobile app to upload your own pictures.
+								<div class="text">Download our mobile app to upload photos</div>
 								<div id="androidmarket" class="button">Android Market</div>
 								<div id="appstore" class="button">App Store</div>
 								<div class="button" onclick="photolog.router.navigate('stream/'+state.stream, true);">No thanks</div>
@@ -47,7 +47,7 @@
 				<img id="large-photo" src=""/>
 				<div id="start-stream-header">
 					<div style="width: 220px;">
-						<div style="font-size: 2em;">Photolog</div>
+						<div class="text">Download our mobile app to upload photos</div>
 						<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
 						<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
 					</div>
@@ -55,7 +55,7 @@
 			</div>
 		</div>
 		<br/>
-		Press left / right arrow keys to explore the stream
+		Hit left / right arrow keys to explore the stream
 		<div id="footer">
 			<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
 		</div>
