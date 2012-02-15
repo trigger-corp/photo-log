@@ -13,7 +13,7 @@
 	<body>
 		<div id="fb-root"></div>
 		<div id="page-header">
-			<a class="page-title" href="/">#launch</a>
+			<a id="page-title" href="/">#launchstream</a>
 		</div>
 		<div id="photos">
 			<div id="header" class="photo">
@@ -42,9 +42,20 @@
 				</tr>
 			</table>
 		</div>
-		<div class="photo" id="large-photo-container">
-			<img id="large-photo" src=""/>
+		<div id="scrollbox">
+			<div class="photo" style="margin: 10px auto 5px auto">
+				<img id="large-photo" src=""/>
+				<div id="start-stream-header">
+					<div style="width: 220px;">
+						<div style="font-size: 2em;">Photolog</div>
+						<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
+						<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
+					</div>
+				</div>			
+			</div>
 		</div>
+		<br/>
+		Press left / right arrow keys to explore the stream
 		<div id="footer">
 			<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
 		</div>

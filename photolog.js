@@ -8,7 +8,8 @@ var config = {
 // Current state
 var state = {
 	location: null,
-	stream: null
+	stream: null,
+	index: 0
 }
 
 // Organisation object
@@ -49,7 +50,7 @@ photolog.types.Router = Backbone.Router.extend({
 		"": "stream",
 		"upsell": "upsell",
 		"upload": "upload",
-		"photo/:photoId": "photo",
+		"photo/:stream/:photoId": "photo",
 		"stream/:stream": "stream"
 	},
 	stream: function (stream) {
@@ -60,21 +61,21 @@ photolog.types.Router = Backbone.Router.extend({
 		if (state.stream != stream) {
 			state.stream = stream;
 			$('#page-title').text('#'+stream);
-			
+			$('#page-title').attr('href', '/#stream/'+stream);
+
 			// Remove current photos
 			photolog.photos.reset();
 			$('.loadedPhoto').remove();
-			
 			photolog.util.update();
 		}
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
-		$('#large-photo-container').hide();
+		$('#scrollox').hide();
 	},
 	upsell: function () {
 		// TODO: Detect iPhone/Android/Web and use appropriate message
-		$('#large-photo-container').hide();
+		$('#scrollbox').hide();
 		if (forge.is.web()) {
 			$('#photos').hide();
 			$('#upload').remove();
@@ -86,17 +87,22 @@ photolog.types.Router = Backbone.Router.extend({
 	upload: function () {
 		$('#upsell').hide();
 		$('#photos').hide();
-		$('#large-photo-container').hide();
+		$('#scrollbox').hide();
 		var page = new photolog.views.Upload();
 		page.render().show();
 	},
-	photo: function (photoId) {
+	photo: function (stream, photoId) {
 		// TODO: Use views rather than hardcoded
 		$('#photos').hide();
 		$('#upload').remove();
 		$('#upsell').hide();
-		$('#large-photo-container').hide();
-		photolog.util.getphoto(photoId);
+		$('#scrollbox').show();
+		if (state.stream != stream) {
+			state.stream = stream;
+			$('#page-title').text('#'+stream);
+		}
+
+		photolog.util.update(function() { photolog.util.getIndividualPhoto(photoId); });
 	}
 });
 photolog.router = new photolog.types.Router();
@@ -110,7 +116,7 @@ photolog.util = {
 		}
 		photolog.router.navigate('upload', true);
 	},
-	update: function () {
+	update: function (callback) {
 		loading();
 		forge.request.ajax({
 			url: "https://api.parse.com/1/classes/Photo",
@@ -122,7 +128,6 @@ photolog.util = {
 			dataType: 'json',
 			data: {
 				"where": '{"stream": "'+state.stream+'"}',
-				"limit": 10,
 				"order": "-createdAt"
 			},
 			success: function (data) {
@@ -136,29 +141,66 @@ photolog.util = {
 					}
 				})
 				loaded();
+				if (callback) {
+					callback();
+				}
 			},
 			error: function () {
 				loaded();
 			}
 		});
 	},
-	getphoto: function(photoId) {
-		forge.request.ajax({
-			url: "https://api.parse.com/1/classes/Photo/" + photoId,
-			headers: {
-				"X-Parse-Application-Id": config.parseAppId,
-				"X-Parse-REST-API-Key": config.parseRestKey
-			},
-			type: "GET",
-			dataType: 'json',
-			success: function (image) {
-				$('#large-photo').attr('src', image.file.url);
-				$('#large-photo-container').show();
-			},
-			error: function () {
-				alert('Could not load photo');
+	getIndividualPhoto: function(photoId) {
+		var photo = photolog.photos.get(photoId);
+		state.index = photolog.photos.indexOf(photo);
+		$(document).keydown(function(e){
+		    if (e.keyCode == 37) {
+   	    		photolog.util.showIndividualPhoto(-1);
+		    } else if (e.keyCode == 39) {
+   	    		photolog.util.showIndividualPhoto(1);
+		    }
+		});
+		$('#large-photo').attr('src', photo.get('url'));
+		$('#scrollbox').show();
+	},
+	showIndividualPhoto: function(increment) {
+	    var nextPhoto = '';
+	    // A null state.index means show the 'Upsell' box instead of a photo
+		if (state.index == null) {
+			state.index = increment == 1 ? 0 : photolog.photos.length - 1;
+			nextPhoto = photolog.photos.at(state.index).get('url');
+		} else {
+	    	state.index += increment;
+	    	if (state.index == -1 || state.index == photolog.photos.length) {
+	    		state.index = null;
+	    	}
+			else {
+				nextPhoto = photolog.photos.at(state.index).get('url');
 			}
-		});		
+	    }
+
+		var xShift = 500;
+		$('#scrollbox').animate({
+		    opacity: 0,
+		    left: '+=' + increment * xShift
+			}, {
+			duration: 250,
+			complete: function() {
+				if(!nextPhoto) {
+			    	$('#start-stream-header').show();
+			    	$('#large-photo').hide();
+				} else {
+			    	$('#start-stream-header').hide();
+			    	$('#large-photo').show();
+				}
+				$('#large-photo').attr('src', nextPhoto);
+				$('#scrollbox').css('left', -1 * increment * xShift);
+				$('#scrollbox').animate({
+				    opacity: 1,
+				    left: '+=' + increment * xShift
+					}, {
+					duration: 250
+					});}});
 	}
 }
 
@@ -304,7 +346,7 @@ photolog.views.Photo = Backbone.View.extend({
 			}
 			var target = 220;
 			var ratio = target/square;
-			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
+			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+state.stream+'/' +photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
 			$(el).fadeIn('slow');
 			$(el).addClass("loadedPhoto");
 			loaded();

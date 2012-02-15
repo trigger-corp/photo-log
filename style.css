@@ -31,7 +31,7 @@ a:hover {
 #photos, #stream-name {
 	margin: auto;
 }
-a.page-title {
+#page-title {
 	color: #666;
 }
 div.photo {
@@ -71,13 +71,12 @@ div.text {
 	height: 100%;
 	width: 100%;
 }
-#large-photo-container {
-	font-size: 16pt;
-	margin: 10px auto;
-	max-width: 100%;
+#scrollbox {
+	display: none;
+	position: relative;
 }
-#large-photo {
-	max-width: 95%;
+#start-stream-header {
+	display: none;
 }
 #footer {
 	clear: both;
