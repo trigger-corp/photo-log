@@ -46,6 +46,12 @@ div.photo {
 	background-color: #fff;
 	margin: 10px;
 }
+#large-photo-container {
+	padding: 15px 5px;
+}
+#large-photo {
+	max-width: 95%;
+}
 div.button {
 	font-size: 1.2em;
 	padding: 10px;
@@ -75,6 +81,7 @@ div.loading {
 #scrollbox {
 	display: none;
 	position: relative;
+	width: 100%;
 }
 #start-stream-header {
 	display: none;

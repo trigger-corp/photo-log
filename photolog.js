@@ -367,7 +367,7 @@ photolog.views.Photo = Backbone.View.extend({
 $(function () {
 	Backbone.history.start()
 	if (forge.is.web()) {
-		$('#upload-button').hide();
+		$('#upload-container').hide();
 		if (navigator.userAgent.indexOf('Android') != -1) {
 			$('#appstore').hide();
 			photolog.router.navigate('upsell', true);
@@ -376,8 +376,7 @@ $(function () {
 			photolog.router.navigate('upsell', true);
 		}
 	} else {
-		$('#android-logo').hide();
-		$('#ios-logo').hide();
+		$('#app-download-container').hide();
 	}
 	// Check for photos then poll every 10 seconds, bit hacky.
 	setInterval(function () {
