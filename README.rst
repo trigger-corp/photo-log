@@ -1,7 +1,7 @@
 Photolog
 =========================
 Photolog is a simple web application that can be built to iOS and Android mobile apps plus a mobile website using the
-.. _Trigger Forge Framework: https://github.com/trigger-corp/build-tools/
+`Trigger Forge Framework <https://github.com/trigger-corp/build-tools/>`_
 
 Building the app
 ----------------
