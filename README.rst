@@ -12,11 +12,11 @@ The mobile app can be created by running ``forge run ios`` or ``forge run androi
 
 iPhone App
 ~~~~~~~~~~
-.. image:: http://github.com/trigger-corp/photo-log/raw/master/img/readme-android.png
+.. image:: http://github.com/trigger-corp/photo-log/raw/master/img/readme-iphone.png
 
 Android App
 ~~~~~~~~~~~
-.. image:: http://github.com/trigger-corp/photo-log/raw/master/img/readme-iphone.png
+.. image:: http://github.com/trigger-corp/photo-log/raw/master/img/readme-android.png
 
 Website
 -------
