@@ -33,6 +33,13 @@ var loaded = function () {
 		$('#loading').hide();
 	}
 }
+var setupTitle = function () {
+	$('#page-title').text('#' + state.stream);
+	$('#page-title').click(function(e) {
+		e.preventDefault();
+		photolog.router.navigate("/stream/" + state.stream, {trigger: true});
+	});
+}
 
 // TODO: forge.geolocation should work everywhere, iOS only for now
 if (forge.is.ios()) {
@@ -61,14 +68,13 @@ photolog.types.Router = Backbone.Router.extend({
 		}
 		if (state.stream != stream) {
 			state.stream = stream;
-			$('#page-title').text('#'+stream);
-			$('#page-title').attr('href', '/#stream/'+stream);
 
 			// Remove current photos
 			photolog.photos.reset();
 			$('.loadedPhoto').remove();
 			photolog.util.update();
 		}
+		setupTitle();
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
@@ -100,9 +106,8 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#scrollbox').hide();
 		if (state.stream != stream) {
 			state.stream = stream;
-			$('#page-title').text('#'+stream);
 		}
-
+		setupTitle();
 		photolog.util.update(function() { photolog.util.getIndividualPhoto(photoId); });
 	}
 });

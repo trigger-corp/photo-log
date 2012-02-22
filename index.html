@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>PhotoShare</title>
+		<title>EventStream</title>
 		<script src="lib/jquery.min.js"></script>
 		<script src="lib/underscore.js"></script>
 		<script src="lib/backbone.js"></script>
@@ -13,7 +13,7 @@
 	<body>
 		<div id="fb-root"></div>
 		<div id="page-header">
-			photolog <a id="page-title" href="/">#launchstream</a>
+			eventstream <a id="page-title" href="#">#launchstream</a>
 		</div>
 		<div id="photos">
 			<div id="header" class="photo">
@@ -29,6 +29,9 @@
 					</div>
 					<div class="loading" id="loading">Loading...</div>
 				</div>
+			</div>
+			<div id="footer">
+				<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
 			</div>
 		</div>
 		<div id="upsell">
@@ -60,9 +63,5 @@
 			</div>
 		</div>
 		<br/>
-		Hit left / right arrow keys to explore the stream
-		<div id="footer">
-			<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
-		</div>
 	</body>
 </html>
