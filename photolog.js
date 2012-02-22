@@ -55,11 +55,44 @@ if (forge.is.ios()) {
 // Router
 photolog.types.Router = Backbone.Router.extend({
 	routes: {
-		"": "stream",
+		"": "listStreams",
 		"upsell": "upsell",
 		"upload": "upload",
 		"photo/:stream/:photoId": "photo",
 		"stream/:stream": "stream"
+	},
+	listStreams: function () {
+		$('#streams').show();
+		$('#photos').hide();
+		$('#upload').remove();
+		$('#upsell').hide();
+		$('#scrollbox').hide();
+		$('#page-title').text('');
+		
+		loading();
+		forge.request.ajax({
+			url: "https://api.parse.com/1/classes/Stream",
+			headers: {
+				"X-Parse-Application-Id": config.parseAppId,
+				"X-Parse-REST-API-Key": config.parseRestKey
+			},
+			type: "GET",
+			dataType: 'json',
+			data: {
+				"order": "-updatedAt"
+			},
+			success: function (data) {
+				$('#streams ul').html('');
+				data.results.forEach(function (stream) {
+					$('#streams ul').append('<li><a href="#stream/'+stream.stream+'">#'+stream.stream+'</a></li>');
+				})
+				loaded();
+			},
+			error: function () {
+				loaded();
+			}
+		});
+		
 	},
 	stream: function (stream) {
 		// TODO: Use views rather than hardcoded
@@ -79,6 +112,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upload').remove();
 		$('#upsell').hide();
 		$('#scrollbox').hide();
+		$('#streams').hide();
 	},
 	upsell: function () {
 		// TODO: Detect iPhone/Android/Web and use appropriate message
@@ -87,6 +121,7 @@ photolog.types.Router = Backbone.Router.extend({
 			$('#photos').hide();
 			$('#upload').remove();
 			$('#upsell').show();
+			$('#streams').hide();
 		} else {
 			photolog.router.navigate('stream/'+state.stream, true);
 		}
@@ -95,6 +130,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upsell').hide();
 		$('#photos').hide();
 		$('#scrollbox').hide();
+		$('#streams').hide();
 		var page = new photolog.views.Upload();
 		page.render().show();
 	},
@@ -104,6 +140,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upload').remove();
 		$('#upsell').hide();
 		$('#scrollbox').hide();
+		$('#streams').hide();
 		if (state.stream != stream) {
 			state.stream = stream;
 		}
@@ -311,10 +348,59 @@ photolog.views.Upload = Backbone.View.extend({
 							loaded();
 						}
 					});
+					
 				}, error: function () {
 					loaded();
 				}
 			});
+			
+			// Update stream
+			forge.request.ajax({
+				url: "https://api.parse.com/1/classes/Stream",
+				headers: {
+					"X-Parse-Application-Id": config.parseAppId,
+					"X-Parse-REST-API-Key": config.parseRestKey
+				},
+				type: "GET",
+				dataType: 'json',
+				data: {
+					"where": '{"stream": "'+state.stream+'"}',
+					"limit": 1
+				},
+				success: function (data) {
+					if (data.results.length > 0) {
+						// PUT requests don't work on all platforms right now
+						// Update stream date
+						forge.request.ajax({
+							url: "https://api.parse.com/1/classes/Stream/"+data.results[0].objectId,
+							headers: {
+								"X-Parse-Application-Id": config.parseAppId,
+								"X-Parse-REST-API-Key": config.parseRestKey
+							},
+							type: "PUT",
+							contentType: "application/json",
+							dataType: 'json',
+							data: '{}'
+						});
+					} else {
+						// Create stream
+						forge.request.ajax({
+							url: "https://api.parse.com/1/classes/Stream",
+							headers: {
+								"X-Parse-Application-Id": config.parseAppId,
+								"X-Parse-REST-API-Key": config.parseRestKey
+							},
+							type: "POST",
+							contentType: "application/json",
+							dataType: 'json',
+							data: JSON.stringify({
+								stream: stream
+							})
+						});
+					}
+				}
+			});
+			
 		}
 	},
 	choose: function () {

@@ -11,9 +11,14 @@
 		<meta name="viewport" content="width=device-width, height=device-height, maximum-scale=1, minimum-scale=1, user-scalable=no">
 	</head>
 	<body>
-		<div id="fb-root"></div>
 		<div id="page-header">
-			eventstream <a id="page-title" href="#">#launchstream</a>
+			<a href="#">eventstream</a> <a id="page-title" href="#">#launchstream</a>
+		</div>
+		<div id="streams">
+			<ul>
+				<li>Loading streams</li>
+			</ul>
+			<input type="text" id="create"> <a href="#" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#',''); return false;">Create stream</a> 
 		</div>
 		<div id="photos">
 			<div id="header" class="photo">
