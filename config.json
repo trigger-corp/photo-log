@@ -1,8 +1,8 @@
 {
-	"name": "eventstream",
+	"name": "Event Stream",
 	"author": "Trigger",
 	"url" : "http://trigger.io",
-	"version": "0.1",
+	"version": "1.0",
 	"platform_version": "cd-web",
 	"description": "Photo logging app to capture, display and share event photos",
 	"permissions": [ ],
@@ -11,5 +11,16 @@
 	"browser_action": {},
 	"logging": {
 		"level": "DEBUG"
+	},
+	"icons": {
+		"48": "img/48.png",
+		"57": "img/57.png",
+		"64": "img/64.png",
+		"72": "img/72.png",
+		"114": "img/114.png",
+		"512": "img/512.png"
+	},
+	"package_names": {
+		"ios": "io.trigger.forge.eventstream"
 	}
 }
