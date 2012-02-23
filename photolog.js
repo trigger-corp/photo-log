@@ -89,7 +89,7 @@ var setupSearch = function() {
 		var searchString = '#' + this.value.replace('#', '');
     	var results = false;
 	    $(".photoStream").each(function(){
-	    	if($(this).text().indexOf(searchString) == 0) {
+	    	if($(this).text().toLowerCase().indexOf(searchString.toLowerCase()) == 0) {
 	    		$(this).parent().show();
 	    		results = true;
 	    	} else {
@@ -337,9 +337,9 @@ photolog.photos.on('add', function (model) {
 	loading();
 	var pageNum = Math.floor(index / config.pageSize) + 1;
 	if (index == 0) {
-		$('#header').after(photo.render(pageNum).el);
+		$('#header').after(photo.render(pageNum, false).el);
 	} else {
-		$(photolog.photos.at(index-1).get('el')).after(photo.render(pageNum).el);
+		$(photolog.photos.at(index-1).get('el')).after(photo.render(pageNum, false).el);
 	}
 });
 
@@ -477,7 +477,7 @@ photolog.views.Upload = Backbone.View.extend({
 				var photo = new photolog.views.Photo({
 					model: new photolog.models.Photo({url: url})
 				});
-				$('.photo', self.el).after(photo.render().el);
+				$('.photo', self.el).after(photo.render(null, true).el);
 				$(photo.el).addClass("toUpload");
 			});
 			self.selImage = file;
@@ -489,7 +489,7 @@ photolog.views.Photo = Backbone.View.extend({
 	tagName: "div",
 	className: "photo",
 
-	render: function(pageNum) {
+	render: function(pageNum, isUpload) {
 		var el = this.el;
 		this.model.set('el', el);
 		$(el).hide();
@@ -509,10 +509,10 @@ photolog.views.Photo = Backbone.View.extend({
 			var target = 220;
 			var ratio = target/square;
 			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+state.stream+'/' +photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
-			if (pageNum == 1) {
+			if (pageNum == 1 || isUpload) {
 				$(el).fadeIn('slow');
 			}
-			$(el).addClass('loadedPhoto photoPage' + pageNum)
+			$(el).addClass('loadedPhoto photoPage' + pageNum);
 			loaded();
 		}
 		preloadImage.src = this.model.get('url');
