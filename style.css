@@ -113,6 +113,7 @@ div.loading {
 	display: none;
 	position: relative;
 	width: 100%;
+	z-index: -1;
 }
 #start-stream-header {
 	display: none;
