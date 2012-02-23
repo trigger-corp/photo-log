@@ -3,7 +3,7 @@ var config = {
 	parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
 	parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P',
 	defaultStream: 'launch',
-	pageSize: 10
+	pageSize: 20
 };
 
 // Current state

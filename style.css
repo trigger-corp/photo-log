@@ -27,7 +27,7 @@ a:hover {
 	color: #fff;
 	height: 50px;
 	line-height: 50px;
-	font-size: 18pt;
+	font-size: 16pt;
 	width: 100%;
 	position: fixed;
 	top: 0;
@@ -88,8 +88,8 @@ div.button {
 	font-size: 1.2em;
 	padding: 25px 0 25px 0;
 	margin: 20px 10px;
-	border: 1px solid #444;
-	border-radius: 5px;
+	border: 1px solid #aaa;
+	background-color: #ddd;
 }
 img.mobile-logo {
 	margin-top: 5px;
