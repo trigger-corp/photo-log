@@ -12,61 +12,74 @@
 	</head>
 	<body>
 		<div id="page-header">
-			<a href="#">eventstream</a> <a id="page-title" href="#">#launchstream</a>
+			<a id="app-title" href="#">eventstream</a> <a id="page-title" href="#">#launchstream</a>
+			<br/>
 		</div>
-		<div id="streams">
-			<ul>
-				<li>Loading streams</li>
-			</ul>
-			<input type="text" id="create"> <a href="#" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#',''); return false;">Create stream</a> 
-		</div>
-		<div id="photos">
-			<div id="header" class="photo">
-				<div style="width: 220px; height: 220px;">
-					<div id="upload-container">
-						<div class="text">Upload photos from your camera or phone gallery</div>
-						<div class="button" id="upload-button" onclick="photolog.util.upload();">Upload</div>
-					</div>
-					<div id="app-download-container">
-						<div class="text">Download our mobile app to upload photos</div>
-						<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
-						<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
-					</div>
-					<div class="loading" id="loading">Loading...</div>
+		<div id="content-container">
+			<div id="streams">
+				<p>Search streams: <input type="text" id="search-streams"></p>
+				<ul>
+					<li>Loading streams</li>
+				</ul>
+				<p id="no-results" style="display: none">No results</p>
+				<div id="create-stream">
+					<input type="text" id="create">
+					<br/>
+					<button id="create" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#','') + ''; return false;" type="button">Create stream</button>
+					<!--a href="#" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#','') + '/1'; return false;">Create stream</a-->
 				</div>
 			</div>
-			<div id="footer">
-				<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
-			</div>
-		</div>
-		<div id="upsell">
-			<table>
-				<tr>
-					<td>
-						<div class="photo">
-							<div style="width: 220px; height: 220px;">
-								<div class="text">Download our mobile app to upload photos</div>
-								<div id="androidmarket" class="button">Android Market</div>
-								<div id="appstore" class="button">App Store</div>
-								<div class="button" onclick="photolog.router.navigate('stream/'+state.stream, true);">No thanks</div>
-							</div>
+			<div id="photos">
+				<div id="header" class="photo">
+					<div style="width: 220px; height: 220px;">
+						<div id="upload-container">
+							<div class="text">Upload photos from your camera or phone gallery</div>
+							<div class="button" id="upload-button" onclick="photolog.util.upload();">Upload</div>
 						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<div id="scrollbox">
-			<div class="photo" id="large-photo-container">
-				<img id="large-photo" src=""/>
-				<div id="start-stream-header">
-					<div style="width: 220px;">
-						<div class="text">Download our mobile app to upload photos</div>
-						<img class="mobile-logo" src="img/android.jpg"/>
-						<img class="mobile-logo" src="img/ios.jpg"/>
+						<div id="app-download-container">
+							<div class="text">Download our mobile app to upload photos</div>
+							<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
+							<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
+						</div>
+						<div class="loading" id="loading">Loading...</div>
 					</div>
-				</div>			
+				</div>
+				<div id="footer">
+					<div id="nav-links">
+						<a id="prev-link" href="#">< Prev</a><span id="nav-divider"> | </span><a id="next-link" href="#">Next ></a>
+					</div>
+					<a href="http://www.trigger.io/">Trigger IO</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
+				</div>
 			</div>
+			<div id="upsell">
+				<table>
+					<tr>
+						<td>
+							<div class="large-photo">
+								<div style="width: 220px; height: 220px;">
+									<div class="text">Download our mobile app to upload photos</div>
+									<div id="androidmarket" class="button">Android Market</div>
+									<div id="appstore" class="button">App Store</div>
+									<div class="button" onclick="photolog.router.navigate('stream/'+state.stream, true);">No thanks</div>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div id="scrollbox">
+				<div class="photo" id="large-photo-container">
+					<img id="large-photo" src=""/>
+					<div id="start-stream-header">
+						<div style="width: 220px;">
+							<div class="text">Download our mobile app to upload photos</div>
+							<img class="mobile-logo" src="img/android.jpg"/>
+							<img class="mobile-logo" src="img/ios.jpg"/>
+						</div>
+					</div>			
+				</div>
+			</div>
+			<br/>
 		</div>
-		<br/>
 	</body>
 </html>

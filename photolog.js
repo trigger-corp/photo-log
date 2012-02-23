@@ -2,7 +2,8 @@
 var config = {
 	parseAppId: 'QD9yEg6rZdAtirdSn02QQDFJp57pDnLfmwHqP4xa',
 	parseRestKey: 'ZstsmIqn3BoShHopKGTSVdOPv7TrNk1NrjQjnb1P',
-	defaultStream: 'launch'
+	defaultStream: 'launch',
+	pageSize: 10
 };
 
 // Current state
@@ -10,7 +11,8 @@ var state = {
 	animating: false,
 	index: 0,
 	location: null,
-	stream: null
+	stream: null,
+	pageNum: 1
 }
 
 // Organisation object
@@ -41,6 +43,66 @@ var setupTitle = function () {
 	});
 }
 
+var updatePhotos = function(increment) {
+	state.pageNum = parseInt(state.pageNum, 10) + increment;
+	var targetClassName = 'photoPage' + state.pageNum;
+	setupNav();
+
+	$('.photo').each(function() {
+		if($(this).attr('class').indexOf(targetClassName) != -1) {
+			$(this).fadeIn('slow');
+		} else {
+			$(this).hide();
+		}
+	});
+};
+
+var setupNav = function () {
+	if(state.pageNum > 1) {
+		$('#prev-link').show();
+	} else {
+		$('#prev-link').hide();
+	}
+	if(photolog.photos.length > state.pageNum * config.pageSize) {
+		$('#next-link').show();
+	} else {
+		$('#next-link').hide();
+	}
+	if($('#prev-link').is(":visible") && $('#next-link').is(":visible")) {
+		$('#nav-divider').show();
+	} else {
+		$('#nav-divider').hide();		
+	}
+
+	$('#next-link').unbind('click').click(function(e) {
+		e.preventDefault();
+		updatePhotos(1);
+	});
+	$('#prev-link').unbind('click').click(function(e) {
+		e.preventDefault();
+		updatePhotos(-1);
+	});
+}
+
+var setupSearch = function() {
+	$("#search-streams").bind("input", function() {
+		var searchString = '#' + this.value.replace('#', '');
+    	var results = false;
+	    $(".photoStream").each(function(){
+	    	if($(this).text().indexOf(searchString) == 0) {
+	    		$(this).parent().show();
+	    		results = true;
+	    	} else {
+	    		$(this).parent().hide();
+	    	}
+	    });
+	    if(!results) {
+	    	$('#no-results').show();
+	    }
+	});
+}
+
+
 // TODO: forge.geolocation should work everywhere, iOS only for now
 if (forge.is.ios()) {
 	forge.geolocation.getCurrentPosition(function (loc) {
@@ -68,7 +130,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upsell').hide();
 		$('#scrollbox').hide();
 		$('#page-title').text('');
-		
+
 		loading();
 		forge.request.ajax({
 			url: "https://api.parse.com/1/classes/Stream",
@@ -84,9 +146,10 @@ photolog.types.Router = Backbone.Router.extend({
 			success: function (data) {
 				$('#streams ul').html('');
 				data.results.forEach(function (stream) {
-					$('#streams ul').append('<li><a href="#stream/'+stream.stream+'">#'+stream.stream+'</a></li>');
+					$('#streams ul').append('<li><a class="photoStream" href="#stream/'+stream.stream+'">#'+stream.stream+'</a></li>');
 				})
 				loaded();
+				setupSearch();
 			},
 			error: function () {
 				loaded();
@@ -105,7 +168,7 @@ photolog.types.Router = Backbone.Router.extend({
 			// Remove current photos
 			photolog.photos.reset();
 			$('.loadedPhoto').remove();
-			photolog.util.update();
+			photolog.util.update(setupNav);
 		}
 		setupTitle();
 		$('#photos').show();
@@ -113,6 +176,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upsell').hide();
 		$('#scrollbox').hide();
 		$('#streams').hide();
+		setupNav();
 	},
 	upsell: function () {
 		// TODO: Detect iPhone/Android/Web and use appropriate message
@@ -271,10 +335,11 @@ photolog.photos.on('add', function (model) {
 
 	var index = photolog.photos.indexOf(model);
 	loading();
+	var pageNum = Math.floor(index / config.pageSize) + 1;
 	if (index == 0) {
-		$('#header').after(photo.render().el);
+		$('#header').after(photo.render(pageNum).el);
 	} else {
-		$(photolog.photos.at(index-1).get('el')).after(photo.render().el);
+		$(photolog.photos.at(index-1).get('el')).after(photo.render(pageNum).el);
 	}
 });
 
@@ -424,7 +489,7 @@ photolog.views.Photo = Backbone.View.extend({
 	tagName: "div",
 	className: "photo",
 
-	render: function() {
+	render: function(pageNum) {
 		var el = this.el;
 		this.model.set('el', el);
 		$(el).hide();
@@ -444,8 +509,10 @@ photolog.views.Photo = Backbone.View.extend({
 			var target = 220;
 			var ratio = target/square;
 			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+state.stream+'/' +photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
-			$(el).fadeIn('slow');
-			$(el).addClass("loadedPhoto");
+			if (pageNum == 1) {
+				$(el).fadeIn('slow');
+			}
+			$(el).addClass('loadedPhoto photoPage' + pageNum)
 			loaded();
 		}
 		preloadImage.src = this.model.get('url');

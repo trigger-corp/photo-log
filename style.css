@@ -9,6 +9,11 @@ body {
 	font-family: "Helvetica", "Corbel", "Arial", sans-serif;
 	color: black;
 }
+input {
+	border: 1px solid grey;
+	height: 20px;
+	line-height: 20px;
+}
 a, a:visited {
 	color: #00F;
 	text-decoration: none;
@@ -17,13 +22,25 @@ a:hover {
 	text-decoration: underline;
 }
 #page-header {
+	background-color: #b00;
 	clear: both;
-	color: #111;
+	color: #fff;
 	height: 50px;
 	line-height: 50px;
 	font-size: 18pt;
-	margin-bottom: -8px;
 	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+#content-container {
+	margin-top: 62px;
+}
+#app-title {
+	color: #fff;
+}
+#page-title {
+	color: #ddd;
 }
 #page-header-inner {
 	padding-left: 20px;
@@ -31,10 +48,24 @@ a:hover {
 #photos, #stream-name {
 	margin: auto;
 }
-#page-title {
-	color: #666;
+#nav-links {
+	margin-bottom: 1em;
 }
-div.photo {
+#nav-divider {
+	display: none;
+}
+#prev-link, #next-link {
+	display: none;
+}
+#create {
+	margin-top: 5px;
+}
+#streams ul {
+	padding-left: 0;
+}
+
+div.photo, div.large-photo, #streams li {
+	list-style: none;
 	overflow: hidden;
 	vertical-align: middle;
 	text-align: center;
@@ -53,12 +84,12 @@ div.photo {
 	max-width: 95%;
 }
 div.button {
+	font-weight: bold;
 	font-size: 1.2em;
-	padding: 10px;
+	padding: 25px 0 25px 0;
 	margin: 20px 10px;
 	border: 1px solid #444;
 	border-radius: 5px;
-	background-color: #888;
 }
 img.mobile-logo {
 	margin-top: 5px;
@@ -92,8 +123,6 @@ div.loading {
 	text-align: center;
 }
 table, tr, td {
-	height: 100%;
 	width: 100%;
 	text-align: center;
-	vertical-align: middle;
 }
