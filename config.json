@@ -13,12 +13,27 @@
 		"level": "DEBUG"
 	},
 	"icons": {
-		"48": "img/48.png",
-		"57": "img/57.png",
-		"64": "img/64.png",
-		"72": "img/72.png",
-		"114": "img/114.png",
-		"512": "img/512.png"
+		"16": "img/icons/16x16.png",
+		"32": "img/icons/32x32.png",
+		"36": "img/icons/36x36.png",
+		"48": "img/icons/48x48.png",
+		"57": "img/icons/57x57.png",
+		"64": "img/icons/64x64.png",
+		"72": "img/icons/72x72.png",
+		"114": "img/icons/114x114.png",
+		"128": "img/icons/128x128.png",
+		"512": "img/icons/512x512.png",
+		"android": {
+			"36": "img/icons/36x36.png",
+			"48": "img/icons/48x48.png",
+			"72": "img/icons/72x72.png"
+		},
+		"ios": {
+			"57": "img/icons/57x57.png",
+			"72": "img/icons/72x72.png",
+			"114": "img/icons/114x114.png",
+			"512": "img/icons/512x512.png"
+		}
 	},
 	"package_names": {
 		"ios": "io.trigger.forge.eventstream"

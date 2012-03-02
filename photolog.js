@@ -13,7 +13,7 @@ var state = {
 	location: null,
 	stream: null,
 	pageNum: 1
-}
+};
 
 // Organisation object
 var photolog = {
@@ -23,25 +23,27 @@ var photolog = {
 	collections: {}
 };
 
+var clickEvent = 'ontouchstart' in document.documentElement ? 'touchstart' : 'click';
+
 // TODO: Tidy up, currently just keeps track of any active ajax requests and shows a loading message
 var loadCount = 0;
 var loading = function () {
 	loadCount++;
 	$('#loading').show();
-}
+};
 var loaded = function () {
 	loadCount--;
 	if (loadCount < 1) {
 		$('#loading').hide();
 	}
-}
-var setupTitle = function () {
-	$('#page-title').text('#' + state.stream);
-	$('#page-title').click(function(e) {
-		e.preventDefault();
-		photolog.router.navigate("/stream/" + state.stream, {trigger: true});
-	});
-}
+};
+// var setupTitle = function () {
+// 	$('#page-title').text('#' + state.stream);
+// 	$('#page-title').bind(clickEvent, function(e) {
+// 		e.preventDefault();
+// 		photolog.router.navigate("/stream/" + state.stream, {trigger: true});
+// 	});
+// };
 
 var updatePhotos = function(increment) {
 	state.pageNum = parseInt(state.pageNum, 10) + increment;
@@ -74,15 +76,15 @@ var setupNav = function () {
 		$('#nav-divider').hide();		
 	}
 
-	$('#next-link').unbind('click').click(function(e) {
+	$('#next-link').unbind(clickEvent).bind(clickEvent, function(e) {
 		e.preventDefault();
 		updatePhotos(1);
 	});
-	$('#prev-link').unbind('click').click(function(e) {
+	$('#prev-link').unbind(clickEvent).bind(clickEvent, function(e) {
 		e.preventDefault();
 		updatePhotos(-1);
 	});
-}
+};
 
 var setupSearch = function() {
 	$("#search-streams").bind("input", function() {
@@ -98,10 +100,33 @@ var setupSearch = function() {
 	    });
 	    if(!results) {
 	    	$('#no-results').show();
+	    } else {
+	    	$('#no-results').hide();	    	
 	    }
 	});
-}
+};
 
+var showTopBar = function(topBarId) {
+	var topBarVisible = false;
+	$('.top-bar').each(function() {
+		if ($(this).attr('id') == topBarId) {
+			$(this).show();
+			topBarVisible = true;
+		} else {
+			$(this).hide();
+		}
+	});
+	// var topMargin = topBarVisible ? '100px' : '70px';
+	// $('#content-container').css('margin-top', topMargin);
+};
+
+var setupTitleBar = function(stream) {
+	$('#stream-name').text('#' + stream);
+	$('#title-bar').unbind(clickEvent).bind(clickEvent, function(e) {
+		e.preventDefault();
+		photolog.router.navigate("/stream/" + stream, {trigger: true});
+	});
+};
 
 // TODO: forge.geolocation should work everywhere, iOS only for now
 if (forge.is.ios()) {
@@ -130,6 +155,7 @@ photolog.types.Router = Backbone.Router.extend({
 		$('#upsell').hide();
 		$('#scrollbox').hide();
 		$('#page-title').text('');
+		showTopBar('search-bar');
 
 		loading();
 		forge.request.ajax({
@@ -170,12 +196,14 @@ photolog.types.Router = Backbone.Router.extend({
 			$('.loadedPhoto').remove();
 			photolog.util.update(setupNav);
 		}
-		setupTitle();
 		$('#photos').show();
 		$('#upload').remove();
 		$('#upsell').hide();
 		$('#scrollbox').hide();
 		$('#streams').hide();
+		$('.toUpload').remove();
+		showTopBar('title-bar');
+		setupTitleBar(stream);
 		setupNav();
 	},
 	upsell: function () {
@@ -208,7 +236,8 @@ photolog.types.Router = Backbone.Router.extend({
 		if (state.stream != stream) {
 			state.stream = stream;
 		}
-		setupTitle();
+		showTopBar('title-bar');
+		setupTitleBar(stream);
 		photolog.util.update(function() { photolog.util.getIndividualPhoto(photoId); });
 	}
 });
@@ -354,7 +383,7 @@ photolog.views.Upload = Backbone.View.extend({
 	},
 	render: function() {
 		var el = this.el;
-		$(el).html('<table><tr><td><div class="photo"><div style="width: 220px;"><div class="button" id="choosephoto">Choose photo</div><div>Post to stream:<input type="text" id="streamid" value="#'+state.stream+'"></div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div></div></td></tr></table>');
+		$(el).html('<div class="large-photo" style="margin-top: 20px;"><div class="button" id="choosephoto">Choose photo</div><div>Stream<br/><input type="text" id="streamid" style="margin-bottom: 15px;" value="#'+state.stream+'"></div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div>');
 		return this;
 	},
 	show: function () {
@@ -477,7 +506,7 @@ photolog.views.Upload = Backbone.View.extend({
 				var photo = new photolog.views.Photo({
 					model: new photolog.models.Photo({url: url})
 				});
-				$('.photo', self.el).after(photo.render(null, true).el);
+				$('#upload').after(photo.render(null, true).el);
 				$(photo.el).addClass("toUpload");
 			});
 			self.selImage = file;
@@ -516,7 +545,6 @@ photolog.views.Photo = Backbone.View.extend({
 			loaded();
 		}
 		preloadImage.src = this.model.get('url');
-
 		return this;
 	}
 });
@@ -535,7 +563,20 @@ $(function () {
 		}
 	} else {
 		$('#app-download-container').hide();
+		$('#footer-links').hide();
 	}
+	$('#index-button').bind(clickEvent, function(e) {
+		e.preventDefault();
+		photolog.router.navigate("/", {trigger: true});
+	});
+	$('#plus-button').bind(clickEvent, function(e) {
+		e.preventDefault();
+		showTopBar('new-bar');
+	});
+	$('#upload-button').bind(clickEvent, function(e) {
+		e.preventDefault();
+		photolog.util.upload();
+	})
 	// Check for photos then poll every 10 seconds, bit hacky.
 	setInterval(function () {
 		photolog.util.update();
