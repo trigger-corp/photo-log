@@ -37,13 +37,6 @@ var loaded = function () {
 		$('#loading').hide();
 	}
 };
-// var setupTitle = function () {
-// 	$('#page-title').text('#' + state.stream);
-// 	$('#page-title').bind(clickEvent, function(e) {
-// 		e.preventDefault();
-// 		photolog.router.navigate("/stream/" + state.stream, {trigger: true});
-// 	});
-// };
 
 var updatePhotos = function(increment) {
 	state.pageNum = parseInt(state.pageNum, 10) + increment;
@@ -116,8 +109,6 @@ var showTopBar = function(topBarId) {
 			$(this).hide();
 		}
 	});
-	// var topMargin = topBarVisible ? '100px' : '70px';
-	// $('#content-container').css('margin-top', topMargin);
 };
 
 var setupTitleBar = function(stream) {
@@ -506,6 +497,9 @@ photolog.views.Upload = Backbone.View.extend({
 				var photo = new photolog.views.Photo({
 					model: new photolog.models.Photo({url: url})
 				});
+				forge.logging.log('   >>>> PHOTO');
+
+				forge.logging.log(photo);
 				$('#upload').after(photo.render(null, true).el);
 				$(photo.el).addClass("toUpload");
 			});
