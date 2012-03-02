@@ -4,7 +4,7 @@ body, html {
 	padding: 0;
 }
 
-span.a {
+span.a, #streams li {
 	cursor: pointer;
 }
 
