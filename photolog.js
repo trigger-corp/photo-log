@@ -523,9 +523,6 @@ photolog.views.Upload = Backbone.View.extend({
 				var photo = new photolog.views.Photo({
 					model: new photolog.models.Photo({url: url})
 				});
-				forge.logging.log('   >>>> PHOTO');
-
-				forge.logging.log(photo);
 				$('#upload').after(photo.render(null, true).el);
 				$(photo.el).addClass("toUpload");
 			});
