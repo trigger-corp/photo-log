@@ -43,7 +43,7 @@ var updatePhotos = function(increment) {
 	var targetClassName = 'photoPage' + state.pageNum;
 	setupNav();
 
-	$('.photo').each(function() {
+	$('.loadedPhoto').each(function() {
 		if($(this).attr('class').indexOf(targetClassName) != -1) {
 			$(this).fadeIn('slow');
 		} else {
