@@ -37,5 +37,10 @@
 	},
 	"package_names": {
 		"ios": "io.trigger.forge.eventstream"
-	}
+	},
+	"orientation": {
+		"default": "any",
+        "iphone": "portrait",
+        "android": "portrait"
+    }
 }
