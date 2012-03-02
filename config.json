@@ -1,5 +1,6 @@
 {
 	"name": "Event Stream",
+	"uuid": "photolog",
 	"author": "Trigger",
 	"url" : "http://trigger.io",
 	"version": "1.0",

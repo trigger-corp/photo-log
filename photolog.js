@@ -23,7 +23,30 @@ var photolog = {
 	collections: {}
 };
 
-var clickEvent = 'ontouchstart' in document.documentElement ? 'touchstart' : 'click';
+// Setup "sensible" click/touch handling
+var clickEvent = 'ontouchend' in document.documentElement ? 'tap' : 'click';
+
+if (clickEvent == 'tap') {
+	var currentTap = true;
+	$('*').live('touchstart', function (e) {
+		currentTap = true;
+		e.stopPropagation();
+	});
+	$('*').live('touchmove', function (e) {
+		currentTap = false;
+	});
+	$('*').live('touchend', function (e) {
+		if (currentTap) {
+			$(e.currentTarget).trigger('tap');
+		}
+		e.stopPropagation();
+	});
+}
+
+// Treat span.a like <a>
+$('span.a').live(clickEvent, function () {
+	window.location.hash = $(this).attr('data-href');
+});
 
 // TODO: Tidy up, currently just keeps track of any active ajax requests and shows a loading message
 var loadCount = 0;
@@ -163,7 +186,11 @@ photolog.types.Router = Backbone.Router.extend({
 			success: function (data) {
 				$('#streams ul').html('');
 				data.results.forEach(function (stream) {
-					$('#streams ul').append('<li><a class="photoStream" href="#stream/'+stream.stream+'">#'+stream.stream+'</a></li>');
+					var li = $('<li><span class="photoStream">#'+stream.stream+'</span></li>');
+					li.bind(clickEvent, function () {
+						window.location.hash = '#stream/'+stream.stream;
+					});
+					$('#streams ul').append(li);
 				})
 				loaded();
 				setupSearch();
@@ -367,14 +394,13 @@ photolog.photos.on('add', function (model) {
 photolog.views.Upload = Backbone.View.extend({
 	tagName: "div",
 	id: "upload",
-	events: {
-		"click #uploadcancel": "cancel",
-		"click #choosephoto": "choose",
-		"click #uploadphoto": "upload"
-	},
 	render: function() {
 		var el = this.el;
 		$(el).html('<div class="large-photo" style="margin-top: 20px;"><div class="button" id="choosephoto">Choose photo</div><div>Stream<br/><input type="text" id="streamid" style="margin-bottom: 15px;" value="#'+state.stream+'"></div><div class="button" id="uploadphoto">Upload</div><div class="button" id="uploadcancel">Cancel</div></div>');
+		_.bindAll(this);
+		$('#uploadcancel', el).bind(clickEvent, this.cancel);
+		$('#choosephoto', el).bind(clickEvent, this.choose);
+		$('#uploadphoto', el).bind(clickEvent, this.upload);
 		return this;
 	},
 	show: function () {
@@ -531,7 +557,7 @@ photolog.views.Photo = Backbone.View.extend({
 			}
 			var target = 220;
 			var ratio = target/square;
-			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><a href="#photo/'+state.stream+'/' +photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></a></div>');
+			$(el).html('<div style="display: inline-block; height: '+square*ratio+'px; width: '+square*ratio+'px; overflow: hidden"><span class="a" data-href="#photo/'+state.stream+'/' +photoId+'"><img style="width: '+preloadImage.width*ratio+'px; height: '+preloadImage.height*ratio+'px; margin-left: -'+widthOffset*ratio+'px; margin-top: -'+heightOffset*ratio+'px" src="'+preloadImage.src+'"></span></div>');
 			if (pageNum == 1 || isUpload) {
 				$(el).fadeIn('slow');
 			}

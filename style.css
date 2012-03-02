@@ -4,6 +4,10 @@ body, html {
 	padding: 0;
 }
 
+span.a {
+	cursor: pointer;
+}
+
 body {
     background-color: #fbfbfb;
 	color: black;
