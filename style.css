@@ -108,26 +108,35 @@ div.top-bar div.button {
 }
 
 .top-bar {
-	background: url("img/search-gradient.png") #b00 repeat-x;
-	border-top: 1px solid #eee;
 	border-bottom: 1px solid #888;
 	color: #b00;
 	cursor: pointer;
 	font-size: 13pt;
-	line-height: 42px;
 	height: 50px;
+	line-height: 48px;
 	width: 100%;
 }
 
+.top-bar-android {
+	background: url("img/search-gradient-android.png") #FFF repeat-x;
+}
+
+.top-bar-iphone {
+	background: url("img/search-gradient-iphone.png") #FFF repeat-x;	
+}
+
 .top-bar input {
-	border-radius: 14px;
-	-moz-border-radius: 14px;
 	box-shadow: 0 1px 1px #888;
 	-moz-box-shadow: 0 1px 1px #888;
 	-webkit-box-shadow: 0 1px 1px #888;
 	height: 28px;
 	padding-left: 10px;
 	width: 10em;
+}
+
+.top-bar-iphone input {
+	border-radius: 14px;
+	-moz-border-radius: 14px;
 }
 
 #photos {

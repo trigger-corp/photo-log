@@ -199,7 +199,7 @@ photolog.types.Router = Backbone.Router.extend({
 				loaded();
 			}
 		});
-		
+
 	},
 	stream: function (stream) {
 		// TODO: Use views rather than hardcoded
@@ -459,12 +459,12 @@ photolog.views.Upload = Backbone.View.extend({
 							loaded();
 						}
 					});
-					
+
 				}, error: function () {
 					loaded();
 				}
 			});
-			
+
 			// Update stream
 			forge.request.ajax({
 				url: "https://api.parse.com/1/classes/Stream",
@@ -511,7 +511,7 @@ photolog.views.Upload = Backbone.View.extend({
 					}
 				}
 			});
-			
+
 		}
 	},
 	choose: function () {
@@ -594,6 +594,12 @@ $(function () {
 		e.preventDefault();
 		photolog.util.upload();
 	})
+	if (forge.is.ios()) {
+		$('.top-bar').each(function() {$(this).addClass('top-bar-iphone')});
+	} else {
+		$('.top-bar').each(function() {$(this).addClass('top-bar-android')});
+	}
+
 	// Check for photos then poll every 10 seconds, bit hacky.
 	setInterval(function () {
 		photolog.util.update();
