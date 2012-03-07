@@ -571,13 +571,14 @@ $(function () {
 	Backbone.history.start()
 	if (forge.is.web()) {
 		$('#upload-container').hide();
-		if (navigator.userAgent.indexOf('Android') != -1) {
-			$('#appstore').hide();
-			photolog.router.navigate('upsell', true);
-		} else if (navigator.userAgent.indexOf('iPhone') != -1 || navigator.userAgent.indexOf('iPad') != -1) {
-			$('#androidmarket').hide();
-			photolog.router.navigate('upsell', true);
-		}
+		// Make mobile web experience the same as desktop web
+		// if (navigator.userAgent.indexOf('Android') != -1) {
+		// 	$('#appstore').hide();
+		// 	photolog.router.navigate('upsell', true);
+		// } else if (navigator.userAgent.indexOf('iPhone') != -1 || navigator.userAgent.indexOf('iPad') != -1) {
+		// 	$('#androidmarket').hide();
+		// 	photolog.router.navigate('upsell', true);
+		// }
 	} else {
 		$('#app-download-container').hide();
 		$('#footer-links').hide();
