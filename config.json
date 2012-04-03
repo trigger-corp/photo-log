@@ -18,10 +18,13 @@
 		"36": "img/icons/36x36.png",
 		"48": "img/icons/48x48.png",
 		"57": "img/icons/57x57.png",
+		"62": "img/icons/62x62.png",
 		"64": "img/icons/64x64.png",
 		"72": "img/icons/72x72.png",
+		"99": "img/icons/99x99.png",
 		"114": "img/icons/114x114.png",
 		"128": "img/icons/128x128.png",
+		"173": "img/icons/173x173.png",
 		"512": "img/icons/512x512.png",
 		"android": {
 			"36": "img/icons/36x36.png",
@@ -33,7 +36,12 @@
 			"72": "img/icons/72x72.png",
 			"114": "img/icons/114x114.png",
 			"512": "img/icons/512x512.png"
-		}
+		},
+        "wp": {
+            "62": "img/icons/62x62.png",
+            "99": "img/icons/99x99.png",
+            "173": "img/icons/173x173.png"
+        }
 	},
 	"package_names": {
 		"ios": "io.trigger.forge.eventstream"
@@ -41,6 +49,7 @@
 	"orientation": {
 		"default": "any",
         "iphone": "portrait",
-        "android": "portrait"
+        "android": "portrait",
+        "wp": "portrait"
     }
 }
