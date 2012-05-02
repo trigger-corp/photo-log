@@ -122,6 +122,23 @@ var setupSearch = function() {
 	});
 };
 
+var setupPageHeader = function() {
+    forge.topbar.setTint([190,57,46,255]);
+    forge.topbar.addButton({
+        icon: "img/index-button.png",
+        position: "left"
+    }, function() {
+        alert("index-button");
+    });
+    forge.topbar.setTitleImage("img/logo.png");
+    forge.topbar.addButton({
+        icon: "img/plus-button.png",
+        position: "right"
+    }, function() {
+        alert("plus-button");
+    });
+};
+
 var showTopBar = function(topBarId) {
 	var topBarVisible = false;
 	$('.top-bar').each(function() {
@@ -568,6 +585,7 @@ photolog.views.Photo = Backbone.View.extend({
 
 // Initialise app
 $(function () {
+    setupPageHeader();
 	Backbone.history.start()
 	if (forge.is.web()) {
 		$('#upload-container').hide();
