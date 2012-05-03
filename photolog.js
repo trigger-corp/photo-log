@@ -105,38 +105,39 @@ var setupNav = function () {
 var setupSearch = function() {
 	$("#search-streams").bind("input", function() {
 		var searchString = '#' + this.value.replace('#', '');
-    	var results = false;
-	    $(".photoStream").each(function(){
-	    	if($(this).text().toLowerCase().indexOf(searchString.toLowerCase()) == 0) {
-	    		$(this).parent().show();
-	    		results = true;
-	    	} else {
-	    		$(this).parent().hide();
-	    	}
-	    });
-	    if(!results) {
-	    	$('#no-results').show();
-	    } else {
-	    	$('#no-results').hide();	    	
-	    }
+		var results = false;
+		$(".photoStream").each(function(){
+			if($(this).text().toLowerCase().indexOf(searchString.toLowerCase()) == 0) {
+				$(this).parent().show();
+				results = true;
+			} else {
+				$(this).parent().hide();
+			}
+		});
+		if(!results) {
+			$('#no-results').show();
+		} else {
+			$('#no-results').hide();			
+		}
 	});
 };
 
-var setupPageHeader = function() {
-    forge.topbar.setTint([190,57,46,255]);
-    forge.topbar.addButton({
-        icon: "img/index-button.png",
-        position: "left"
-    }, function() {
-        alert("index-button");
-    });
-    forge.topbar.setTitleImage("img/logo.png");
-    forge.topbar.addButton({
-        icon: "img/plus-button.png",
-        position: "right"
-    }, function() {
-        alert("plus-button");
-    });
+var setupNativePageHeader = function() {
+	$("#page-header").hide();
+	forge.topbar.setTint([190,57,46,255]);
+	forge.topbar.addButton({
+		icon: "img/index-button.png",
+		position: "left"
+	}, function() {
+		photolog.router.navigate("/", {trigger: true});
+	});
+	forge.topbar.setTitleImage("img/logo.png");
+	forge.topbar.addButton({
+		icon: "img/plus-button.png",
+		position: "right"
+	}, function() {
+		showTopBar('new-bar');
+	});
 };
 
 var showTopBar = function(topBarId) {
@@ -325,11 +326,11 @@ photolog.util = {
 		var photo = photolog.photos.get(photoId);
 		state.index = photolog.photos.indexOf(photo);
 		$(document).keydown(function(e){
-		    if (e.keyCode == 37) {
-   	    		photolog.util.showIndividualPhoto(-1);
-		    } else if (e.keyCode == 39) {
-   	    		photolog.util.showIndividualPhoto(1);
-		    }
+			if (e.keyCode == 37) {
+				photolog.util.showIndividualPhoto(-1);
+			} else if (e.keyCode == 39) {
+				photolog.util.showIndividualPhoto(1);
+			}
 		});
 		$('#large-photo').attr('src', photo.get('url'));
 		$('#scrollbox').show();
@@ -339,40 +340,40 @@ photolog.util = {
 			return;
 		}
 		state.animating = true;
-	    var nextPhoto = '';
-	    // A null state.index means show the 'Upsell' box instead of a photo
+		var nextPhoto = '';
+		// A null state.index means show the 'Upsell' box instead of a photo
 		if (state.index == null) {
 			state.index = increment == 1 ? 0 : photolog.photos.length - 1;
 			nextPhoto = photolog.photos.at(state.index).get('url');
 		} else {
-	    	state.index += increment;
-	    	if (state.index == -1 || state.index == photolog.photos.length) {
-	    		state.index = null;
-	    	}
+			state.index += increment;
+			if (state.index == -1 || state.index == photolog.photos.length) {
+				state.index = null;
+			}
 			else {
 				nextPhoto = photolog.photos.at(state.index).get('url');
 			}
-	    }
+		}
 
 		var xShift = 500;
 		$('#scrollbox').animate({
-		    opacity: 0,
-		    left: '+=' + increment * xShift
+			opacity: 0,
+			left: '+=' + increment * xShift
 			}, {
 			duration: 200,
 			complete: function() {
 				$('#scrollbox').css('left', -1 * increment * xShift);
 				if(!nextPhoto) {
-			    	$('#start-stream-header').show();
-			    	$('#large-photo').hide();
+					$('#start-stream-header').show();
+					$('#large-photo').hide();
 				} else {
-			    	$('#start-stream-header').hide();
-			    	$('#large-photo').show();
+					$('#start-stream-header').hide();
+					$('#large-photo').show();
 				}
 				$('#large-photo').attr('src', nextPhoto);
 				$('#scrollbox').animate({
-				    opacity: 1,
-				    left: '+=' + increment * xShift
+					opacity: 1,
+					left: '+=' + increment * xShift
 				}, {
 					duration: 200
 				});
@@ -585,30 +586,33 @@ photolog.views.Photo = Backbone.View.extend({
 
 // Initialise app
 $(function () {
-    setupPageHeader();
 	Backbone.history.start()
 	if (forge.is.web()) {
 		$('#upload-container').hide();
 		// Make mobile web experience the same as desktop web
 		// if (navigator.userAgent.indexOf('Android') != -1) {
-		// 	$('#appstore').hide();
-		// 	photolog.router.navigate('upsell', true);
+		//	$('#appstore').hide();
+		//	photolog.router.navigate('upsell', true);
 		// } else if (navigator.userAgent.indexOf('iPhone') != -1 || navigator.userAgent.indexOf('iPad') != -1) {
-		// 	$('#androidmarket').hide();
-		// 	photolog.router.navigate('upsell', true);
+		//	$('#androidmarket').hide();
+		//	photolog.router.navigate('upsell', true);
 		// }
 	} else {
 		$('#app-download-container').hide();
 		$('#footer-links').hide();
 	}
-	$('#index-button').bind(clickEvent, function(e) {
-		e.preventDefault();
-		photolog.router.navigate("/", {trigger: true});
-	});
-	$('#plus-button').bind(clickEvent, function(e) {
-		e.preventDefault();
-		showTopBar('new-bar');
-	});
+	if (forge.is.mobile()) {
+		setupNativePageHeader();
+	} else {
+		$('#index-button').bind(clickEvent, function(e) {
+			e.preventDefault();
+			photolog.router.navigate("/", {trigger: true});
+		});
+		$('#plus-button').bind(clickEvent, function(e) { 
+			e.preventDefault();
+			showTopBar('new-bar');
+		});
+	}
 	$('#upload-button').bind(clickEvent, function(e) {
 		e.preventDefault();
 		photolog.util.upload();
