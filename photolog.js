@@ -126,14 +126,14 @@ var setupNativePageHeader = function() {
 	$("#page-header").hide();
 	forge.topbar.setTint([190,57,46,255]);
 	forge.topbar.addButton({
-		icon: "img/index-button.png",
+		icon: "img/index-button-native.png",
 		position: "left"
 	}, function() {
 		photolog.router.navigate("/", {trigger: true});
 	});
 	forge.topbar.setTitleImage("img/logo.png");
 	forge.topbar.addButton({
-		icon: "img/plus-button.png",
+		icon: "img/plus-button-native.png",
 		position: "right"
 	}, function() {
 		showTopBar('new-bar');
