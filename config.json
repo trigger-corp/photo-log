@@ -1,6 +1,6 @@
 {
 	"config_version": "2",
-	"platform_version": "avg-topbar",
+	"platform_version": "v1.3",
 	"name": "Event Stream",
 	"author": "Trigger",
 	"uuid": "photolog",
