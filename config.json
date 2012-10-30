@@ -1,53 +1,54 @@
 {
-    "config_version": "3", 
-    "description": "Photo logging app to capture, display and share event photos", 
-    "author": "Trigger", 
-    "url": "http://trigger.io", 
-    "modules": {
-        "package_names": {
-            "ios": "io.trigger.forge.eventstream"
-        }, 
-        "logging": {
-            "level": "DEBUG"
-        }, 
-        "orientation": {
-            "default": "any", 
-            "android": "portrait", 
-            "iphone": "portrait", 
-            "wp": "portrait"
-        }, 
-        "icons": {
-            "ios": {
-                "114": "img/icons/114x114.png", 
-                "57": "img/icons/57x57.png", 
+	"config_version": "3", 
+	"description": "Photo logging app to capture, display and share event photos", 
+	"author": "Trigger", 
+	"url": "http://trigger.io", 
+	"modules": {
+		"package_names": {
+			"ios": "io.trigger.forge.eventstream"
+		}, 
+		"logging": {
+			"level": "DEBUG"
+		}, 
+		"orientation": {
+			"default": "any", 
+			"android": "portrait", 
+			"iphone": "portrait", 
+			"wp": "portrait"
+		}, 
+		"icons": {
+			"ios": {
+				"114": "img/icons/114x114.png", 
+				"57": "img/icons/57x57.png", 
 				"144": "img/icons/512x512.png", 
-                "512": "img/icons/512x512.png", 
-                "72": "img/icons/72x72.png"
-            }, 
-            "wp": {
-                "99": "img/icons/99x99.png", 
-                "62": "img/icons/62x62.png", 
-                "173": "img/icons/173x173.png"
-            }, 
-            "android": {
-                "36": "img/icons/36x36.png", 
-                "48": "img/icons/48x48.png", 
-                "72": "img/icons/72x72.png"
-            }
-        }, 
-        "is": true, 
-        "request": {
-            "permissions": []
-        }, 
-        "reload": true, 
-        "background": {
-            "files": []
-        }, 
-        "activations": [], 
-        "topbar": true
-    }, 
-    "name": "Event Stream", 
-    "platform_version": "v1.4", 
-    "version": "1.1", 
-    "uuid": "a7d0f8acdbf511e1889e12313d1adcbe"
+				"512": "img/icons/512x512.png", 
+				"72": "img/icons/72x72.png"
+			}, 
+			"wp": {
+				"99": "img/icons/99x99.png", 
+				"62": "img/icons/62x62.png", 
+				"173": "img/icons/173x173.png"
+			}, 
+			"android": {
+				"36": "img/icons/36x36.png", 
+				"48": "img/icons/48x48.png", 
+				"72": "img/icons/72x72.png"
+			}
+		}, 
+		"is": true, 
+		"request": {
+			"permissions": []
+		}, 
+		"reload": true, 
+		"background": {
+			"files": []
+		}, 
+		"activations": [], 
+		"topbar": true,
+		"file": true
+	}, 
+	"name": "Event Stream", 
+	"platform_version": "v1.4", 
+	"version": "1.1", 
+	"uuid": "a7d0f8acdbf511e1889e12313d1adcbe"
 }
