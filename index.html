@@ -1,103 +1,98 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>EventStream</title>
-		<script src="lib/jquery.min.js"></script>
-		<script src="lib/underscore.js"></script>
-		<script src="lib/backbone.js"></script>
-		<script src="lib/date.js"></script>
-		<script defer src="photolog.js"></script>
-		<link rel="stylesheet" href="reset.css">
-		<link rel="stylesheet" href="style.css">
-		<meta name="viewport" content="width=device-width, height=device-height, maximum-scale=1, minimum-scale=1, user-scalable=no">
-	</head>
-	<body>
-		<div id="page-header">
-			<div id="index-button-container"><img id="index-button" src="img/index-button.png"></div>
-			<div id="logo-container"><a id="app-title" href="#"><img src="img/logo.png"/></a></div>
-			<div id="plus-button-container"><img id="plus-button" src="img/plus-button.png"></div>
-		</div>
-		<div class="top-bar" id="search-bar">
-			<div class="content-container">
-				<input type="text" id="search-streams" placeholder="Search streams">
-			</div>
-		</div>
-		<div class="top-bar" id="new-bar">
-			<div class="content-container">
-				<input type="text" id="create" placeholder="#streamname">
-				<div class="button" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#','') + ''; return false;">Create</div>
-			</div>
-		</div>
-		<div class="top-bar" id="title-bar">
-			<div class="content-container">
-				<span id="stream-name"></span>&nbsp;<span class="loading" id="loading">| Loading...</span>
-			</div>
-		</div>
-		<div id="content-container">
-			<div id="streams">
-				<div class="stream-container" id="loading-streams-container">
-					<ul>
-						<li>Loading streams</li>
-					</ul>
-					<p id="no-results" style="display: none">No results</p>
-				</div>
-			</div>
-			<div id="photos">
-				<div id="header" class="photo">
-					<div style="width: 220px;">
-						<div id="upload-container">
-							<div class="text">Upload from camera or gallery</div>
-							<div class="button" id="upload-button" style="margin: 10px 0 10px 0">Upload</div>
-							<div id="upload"></div>
-						</div>
-						<div id="app-download-container" style="height: 220px;">
-							<div class="text">Download our mobile app to upload photos</div>
-							<a href="https://play.google.com/store/apps/details?id=io.trigger.forgee56376b05d8111e1ba1f12313d1adcbe">
-								<img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
-							</a>
-							<a href="http://itunes.apple.com/gb/app/event-stream/id505147051?mt=8">
-								<img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
-							</a>
-						</div>
-					</div>
-				</div>
-				<div id="footer">
-					<div id="nav-links">
-						<a id="prev-link" href="#">< Prev</a><span id="nav-divider"> | </span><a id="next-link" href="#">Next ></a>
-					</div>
-					<div id="footer-links">
-						<a href="http://www.trigger.io/">Trigger</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
-					</div>
-				</div>
-			</div>
-			<div id="upsell">
-				<table>
-					<tr>
-						<td>
-							<div class="large-photo">
-								<div style="width: 220px; height: 220px;">
-									<div class="text">Download our mobile app to upload photos<br/></div>
-									<div id="androidmarket" class="button">Android Market</div>
-									<div id="appstore" class="button">App Store</div>
-									<div class="button" onclick="photolog.router.navigate('stream/'+state.stream, true);">No thanks</div>
-								</div>
-							</div>
-						</td>
-					</tr>
-				</table>
-			</div>
-			<div id="scrollbox">
-				<div class="photo" id="large-photo-container">
-					<img id="large-photo" src=""/>
-					<div id="start-stream-header">
-						<div style="width: 220px;">
-							<div class="text">Download our mobile app to upload photos</div>
-							<img class="mobile-logo" src="img/android.jpg"/>
-							<img class="mobile-logo" src="img/ios.jpg"/>
-						</div>
-					</div>			
-				</div>
-			</div>
-		</div>
-	</body>
+    <head>
+        <title>EventStream</title>
+        <script src="lib/jquery.min.js"></script>
+        <script src="lib/underscore.js"></script>
+        <script src="lib/backbone.js"></script>
+        <script src="lib/date.js"></script>
+        <script src="photolog.js"></script>
+        <link rel="stylesheet" href="reset.css">
+        <link rel="stylesheet" href="style.css">
+        <meta name="viewport" content="width=device-width, height=device-height, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    </head>
+    <body>
+        <div class="top-bar" id="search-bar">
+            <div class="content-container">
+                <input type="text" id="search-streams" placeholder="Search streams">
+            </div>
+        </div>
+        <div class="top-bar" id="new-bar">
+            <div class="content-container">
+                <input type="text" id="create" placeholder="#streamname">
+                <div class="button" onclick="window.location.hash = '#stream/'+$('#create').val().replace('#','') + ''; return false;">Create</div>
+            </div>
+        </div>
+        <div class="top-bar" id="title-bar">
+            <div class="content-container">
+                <span id="stream-name"></span>&nbsp;<span class="loading" id="loading">| Loading...</span>
+            </div>
+        </div>
+        <div id="content-container">
+            <div id="streams">
+                <div class="stream-container" id="loading-streams-container">
+                    <ul>
+                        <li>Loading streams</li>
+                    </ul>
+                    <p id="no-results" style="display: none">No results</p>
+                </div>
+            </div>
+            <div id="photos">
+                <div id="header" class="photo">
+                    <div style="width: 220px;">
+                        <div id="upload-container">
+                            <div class="text">Upload from camera or gallery</div>
+                            <div class="button" id="upload-button" style="margin: 10px 0 10px 0">Upload</div>
+                            <div id="upload"></div>
+                        </div>
+                        <div id="app-download-container" style="height: 220px;">
+                            <div class="text">Download our mobile app to upload photos</div>
+                            <a href="https://play.google.com/store/apps/details?id=io.trigger.forgee56376b05d8111e1ba1f12313d1adcbe">
+                                <img class="mobile-logo" id="android-logo" src="img/android.jpg"/>
+                            </a>
+                            <a href="http://itunes.apple.com/gb/app/event-stream/id505147051?mt=8">
+                                <img class="mobile-logo" id="ios-logo" src="img/ios.jpg"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div id="footer">
+                    <div id="nav-links">
+                        <a id="prev-link" href="#">< Prev</a><span id="nav-divider"> | </span><a id="next-link" href="#">Next ></a>
+                    </div>
+                    <div id="footer-links">
+                        <a href="http://www.trigger.io/">Trigger</a> | <a href="https://github.com/trigger-corp/photo-log">Code on GitHub</a>
+                    </div>
+                </div>
+            </div>
+            <div id="upsell">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="large-photo">
+                                <div style="width: 220px; height: 220px;">
+                                    <div class="text">Download our mobile app to upload photos<br/></div>
+                                    <div id="androidmarket" class="button">Android Market</div>
+                                    <div id="appstore" class="button">App Store</div>
+                                    <div class="button" onclick="photolog.router.navigate('stream/'+state.stream, true);">No thanks</div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="scrollbox">
+                <div class="photo" id="large-photo-container">
+                    <img id="large-photo" src=""/>
+                    <div id="start-stream-header">
+                        <div style="width: 220px;">
+                            <div class="text">Download our mobile app to upload photos</div>
+                            <img class="mobile-logo" src="img/android.jpg"/>
+                            <img class="mobile-logo" src="img/ios.jpg"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

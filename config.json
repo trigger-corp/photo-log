@@ -1,54 +1,88 @@
 {
-	"config_version": "3", 
-	"description": "Photo logging app to capture, display and share event photos", 
-	"author": "Trigger", 
-	"url": "http://trigger.io", 
+	"config_version": "4",
+	"name": "Event Stream",
+	"author": "Trigger",
 	"modules": {
-		"package_names": {
-			"ios": "io.trigger.forge.eventstream"
-		}, 
-		"logging": {
-			"level": "DEBUG"
-		}, 
-		"orientation": {
-			"default": "any", 
-			"android": "portrait", 
-			"iphone": "portrait", 
-			"wp": "portrait"
-		}, 
+		"file": {
+			"version": "2.11"
+		},
+		"display": {
+			"config": {
+				"fullscreen": {
+					"android": true,
+					"ios": true,
+					"ios7": "no-statusbar"
+				},
+				"orientations": {
+					"android": "portrait",
+					"ipad": "portrait",
+					"iphone": "portrait"
+				},
+				"statusbar": {
+					"background-color": "#1f1f1f"
+				}
+			},
+			"version": "2.5"
+		},
 		"icons": {
-			"ios": {
-				"114": "img/icons/114x114.png", 
-				"57": "img/icons/57x57.png", 
-				"144": "img/icons/512x512.png", 
-				"512": "img/icons/512x512.png", 
-				"72": "img/icons/72x72.png"
-			}, 
-			"wp": {
-				"99": "img/icons/99x99.png", 
-				"62": "img/icons/62x62.png", 
-				"173": "img/icons/173x173.png"
-			}, 
-			"android": {
-				"36": "img/icons/36x36.png", 
-				"48": "img/icons/48x48.png", 
-				"72": "img/icons/72x72.png"
+			"version": "2.6",
+			"config": {
+				"android": {
+					"36": "img/icons/36x36.png",
+					"48": "img/icons/48x48.png",
+					"72": "img/icons/72x72.png",
+					"96": "img/icons/96x96.png",
+					"144": "img/icons/144x144.png",
+					"192": "img/icons/192x192.png"
+				},
+				"ios": {
+					"57": "img/icons/57x57.png",
+					"72": "img/icons/72x72.png",
+					"76": "img/icons/76x76.png",
+					"114": "img/icons/114x114.png",
+					"120": "img/icons/120x120.png",
+					"144": "img/icons/512x512.png",
+					"152": "img/icons/152x152.png",
+					"180": "img/icons/180x180.png"
+				}
 			}
-		}, 
-		"is": true, 
+		},
+		"topbar": {
+			"version": "2.9"
+		},
 		"request": {
-			"permissions": []
-		}, 
-		"reload": true, 
-		"background": {
-			"files": []
-		}, 
-		"activations": [], 
-		"topbar": true,
-		"file": true
-	}, 
-	"name": "Event Stream", 
-	"platform_version": "v1.4", 
-	"version": "1.1", 
-	"uuid": "a7d0f8acdbf511e1889e12313d1adcbe"
+			"version": "2.7",
+			"config": {
+				"permissions": []
+			}
+		},
+		"geolocation": {
+			"version": "2.4",
+			"config": {}
+		}
+	},
+	"platform_version": "v2.4.2",
+	"version": "2.0",
+	"core": {
+		"ios": {
+			"package_name": "io.trigger.forge.eventstream",
+			"disable_web_storage_backup": true
+		},
+		"general": {
+			"reload": true,
+			"logging": {
+				"level": "DEBUG"
+			},
+			"reload_forcewifi": true
+		},
+		"android": {
+			"package_name": "io.trigger.forge.eventstream",
+			"remote_debugging": true
+		},
+		"crosswalk": {
+			"disable_pull_to_refresh_effect": true
+		}
+	},
+	"description": "Photo logging app to capture, display and share event photos",
+	"homepage": "https://trigger.io"
 }
